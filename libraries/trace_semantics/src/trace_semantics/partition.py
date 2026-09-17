@@ -391,7 +391,7 @@ def _process_trace(
                     trace_id=trace_id,
                     deployment=deployment,
                     span_id=span_id,
-                    evidence_ids=node_evidence,
+                    evidence_ids=[evidence_id],
                     raw=raw,
                 ))
             if not isinstance(op_name, str) or op_name not in policy.operation_mappings:

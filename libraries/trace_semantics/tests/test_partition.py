@@ -175,6 +175,27 @@ def test_changed_raw_record_with_same_span_id_is_a_conflict_without_winner():
     assert any(item["reason"] == "conflicting_identity" for item in result["deferred"])
 
 
+def test_conflict_deferrals_reference_each_record_and_keep_group_membership():
+    result = partition_traces([{
+        "trace_id": "t4", "deployment": "prod-a",
+        "spans": [
+            _span("same", duration="4"),
+            _span("same", duration="5"),
+            _span("same", duration="6"),
+        ],
+    }])
+
+    node = result["traces"][0]["nodes"][0]
+    evidence_ids = [occurrence["evidence_id"] for occurrence in node["occurrences"]]
+    conflict_deferrals = [
+        item for item in result["deferred"] if item["reason"] == "conflicting_identity"
+    ]
+
+    assert [item["evidence_ids"] for item in conflict_deferrals] == [[evidence_id] for evidence_id in evidence_ids]
+    assert [item["raw"]["duration"] for item in conflict_deferrals] == ["4", "5", "6"]
+    assert len(evidence_ids) == 3
+
+
 def test_unknown_operation_and_status_defer_locally_while_known_node_survives():
     result = partition_traces([{
         "trace_id": "t4", "deployment": "prod-a",
