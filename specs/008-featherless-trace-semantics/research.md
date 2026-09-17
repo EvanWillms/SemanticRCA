@@ -35,3 +35,9 @@ Research review independently checked reuse seams and ADR constraints. Source ex
 ## Resolved planning uncertainties
 
 The plan treats non-determinism as both execution variation (retained facts) and separately model variation (repeated trials). It selects structured encoding, descriptive facets, no embedding service, and no forced fault taxonomy. Provider TTL, effective account price, supported JSON mode and cache counters remain runtime capabilities to record or conservatively bypass, not unresolved design choices. Model availability is a run prerequisite; an unavailable candidate yields not run, never an unregistered model substitution.
+
+## Evidence-driven amendment: structural prompt before status mapping
+
+Decision: P01 uses the existing validated S01 family and a candidate semantic-transcoding prompt; S09 remains a separate later study. Rationale: only S01 has encoding evidence, and its saved policy contains expected answers that must be stripped. Alternative: execute the prior status-only S09 first; that would answer a different question from the current tokenization request. See the [review](experiment-review.md) and [minimal protocol](minimal-test.md).
+
+Decision: reduce the optional immediate cache experiment from 12 to six attempts with two paired targets and counted seeds. Rationale: enough for an observable reuse smoke test, not an effect-size estimate. The unchanged natural prefix must qualify; otherwise defer rather than pad. Alternative: replay identical full requests; rejected because evidence reuse would confound the static-prefix claim. Provider pricing/completion documentation was rechecked on 2026-09-17; no runtime/model account capabilities were queried.

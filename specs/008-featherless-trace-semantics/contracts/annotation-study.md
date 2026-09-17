@@ -1,4 +1,6 @@
-# Annotation study contract (proposed; not implemented)
+# S09 annotation study contract (deferred; not implemented)
+
+The immediate P01 test uses [minimal-test.md](../minimal-test.md) and the exact [structural prompt contract](../prompts/structural-v1.txt). This document retains the separate S09 status-mapping interface; it is not the current first-run command.
 
 ## Inputs and interface
 

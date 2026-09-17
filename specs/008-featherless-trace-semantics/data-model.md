@@ -19,3 +19,9 @@ Each packet may have many annotations and attempts. An annotation cites evidence
 Attempt states: planned → admitted → dispatched → received → validated/invalid. Admission may yield budget_refused or unavailable; dispatch may yield transport_failed or interrupted_uncertain. All terminal states retain consumed/reserved budget. No automatic retry or repair exists in S09. Raw responses are immutable even when invalid.
 
 Study states: frozen → running → complete/incomplete → adjudicated. Conclusions are supported_on_fixture, falsified, or inconclusive. A failed fidelity boundary blocks dependent integrated studies; isolated studies with correct authored facts explicitly retain their isolation qualification.
+
+## P01 specialization
+
+The P01 output contract is the complete [candidate prompt](prompts/structural-v1.txt): schema_version, packet_id, trace_id, context, entities, occurrences and unknowns. Each occurrence tuple preserves the ten declared values, including an opaque evidence ID. The deterministic scorer expands codes and aliases to source facts; GLM output never overwrites the source packet. This experimental output is a candidate symbolic packet, not the later interpretive annotation sidecar.
+
+P01's evaluator-only manifest maps opaque packets to source fixtures, hashes inputs/prompt/expected facts and fixes 18 trial slots. It must not be loaded by the model-message builder. CacheProbePair adds block_id, seed_attempt_id, shared_target_attempt_id, control_target_attempt_id, early_tag/token identity, common_static_prefix_tokens and suffix-divergence location. These records join the same immutable attempt/usage ledger; six probe attempts form two separately reported comparisons.

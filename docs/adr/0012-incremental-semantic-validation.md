@@ -15,7 +15,7 @@ The repository contains useful extraction and baselining work, but those results
 - Require the decoder to recover contracted facts without consulting raw records. Audit provenance separately. Keep retrieval coverage, instrumentation coverage, graph quality, and semantic uncertainty distinct. A successful downstream answer cannot excuse a lost required fact.
 - Stop the dependent sequence at a failed boundary and diagnose it. Later isolated studies may use independently correct authored inputs, but cannot claim that the connected pipeline works. A passing slice supports only its stated fixtures and claim.
 - Compare symbolic size with compact normalized evidence at equal fidelity, including dictionary, schema and context overhead. Report bytes, actual model tokens, supporting storage, and retrieval cost separately; state any dictionary amortization population. A byte reduction is not a token/cost improvement.
-- Start model evaluation with S09's three status-boundary cases, two equal-information representations and three repetitions: 18 calls. Freeze model/settings/prompt, isolate contexts, counterbalance format order, and score factual entailment as well as evidence pointers. Defer the earlier 126-call matrix. No model access means not run, not a simulated result.
+- The original first-model plan was S09's three status-boundary cases, two equal-information representations and three repetitions: 18 calls. The P01 priority amendment below now governs the immediate model test; S09 remains a separate later study. Freeze model/settings/prompt, isolate contexts, counterbalance format order, and score factual entailment as well as evidence pointers. Defer the earlier 126-call matrix. No model access means not run, not a simulated result.
 - Record results as `supported_on_fixture`, `falsified`, or `inconclusive`, with observed differences, qualifications, and the next smallest action. Acceptance of this ADR is not acceptance of any empirical hypothesis.
 
 ## Exposure and scope
@@ -33,3 +33,7 @@ The handoff fixes the immediate experiment scope; it does not launch experiments
 ## Featherless study specialization
 
 [ADR 0015](0015-featherless-trace-semantics-and-prefix-caching.md) and [feature 008](../../specs/008-featherless-trace-semantics/spec.md) define the Featherless request, usage and cache boundaries for S09. The 18-attempt study gains no hidden warmups, repairs or answer reuse. A deliberate caching probe remains a separately frozen later experiment; it cannot substitute for fidelity or model-label validation.
+
+## Priority amendment: P01 structural prompt probe
+
+Following review of the completed S01 evidence and the user's minimal-tokenization-test request, [ADR 0015](0015-featherless-trace-semantics-and-prefix-caching.md) now prioritizes [P01](../../specs/008-featherless-trace-semantics/minimal-test.md): 18 isolated attempts on sanitized T0/T1/T2 representations. Remove saved experiment hypotheses/pass rules from prompts; preserve independently frozen expectations outside inference. S09 remains the original status-boundary study and is not satisfied by a P01 pass. A conditional six-call cache smoke tests reuse only, with separately reported seeds/controls and no padding. All other incremental fidelity gates remain unchanged.

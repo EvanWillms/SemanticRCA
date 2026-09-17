@@ -1,0 +1,75 @@
+{
+  "status": "offline_design_projection_checks_passed",
+  "model_calls": 0,
+  "actual_model_token_counts": null,
+  "checks": [
+    {
+      "packet": "q2",
+      "format": "normalized",
+      "records": 7,
+      "raw_fields_per_record": 9,
+      "exact_source_recovery": true,
+      "evidence_assignments_valid": true,
+      "answer_metadata_absent": true,
+      "utf8_bytes": 1987
+    },
+    {
+      "packet": "q2",
+      "format": "symbolic",
+      "records": 7,
+      "raw_fields_per_record": 9,
+      "exact_source_recovery": true,
+      "evidence_assignments_valid": true,
+      "answer_metadata_absent": true,
+      "utf8_bytes": 978
+    },
+    {
+      "packet": "q7",
+      "format": "normalized",
+      "records": 7,
+      "raw_fields_per_record": 9,
+      "exact_source_recovery": true,
+      "evidence_assignments_valid": true,
+      "answer_metadata_absent": true,
+      "utf8_bytes": 1987
+    },
+    {
+      "packet": "q7",
+      "format": "symbolic",
+      "records": 7,
+      "raw_fields_per_record": 9,
+      "exact_source_recovery": true,
+      "evidence_assignments_valid": true,
+      "answer_metadata_absent": true,
+      "utf8_bytes": 978
+    },
+    {
+      "packet": "q9",
+      "format": "normalized",
+      "records": 8,
+      "raw_fields_per_record": 9,
+      "exact_source_recovery": true,
+      "evidence_assignments_valid": true,
+      "answer_metadata_absent": true,
+      "utf8_bytes": 2228
+    },
+    {
+      "packet": "q9",
+      "format": "symbolic",
+      "records": 8,
+      "raw_fields_per_record": 9,
+      "exact_source_recovery": true,
+      "evidence_assignments_valid": true,
+      "answer_metadata_absent": true,
+      "utf8_bytes": 1069
+    }
+  ],
+  "schedule_slots": 18,
+  "not_tested": [
+    "model prompt fidelity",
+    "live provider behavior",
+    "cache eligibility/hits",
+    "model token reduction",
+    "production runner/scorer implementation"
+  ]
+}

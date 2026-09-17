@@ -7,7 +7,7 @@
 
 ## Summary
 
-Build a deterministic evidence layer with a separate GLM annotation layer. Exploit common prompt prefixes opportunistically; measure encoding fidelity, classification quality, model variation and caching separately. Start with the existing S09 status-boundary study, using correct authored packets. Advance to variable-trace classification only after its smallest prerequisites pass.
+Build a deterministic evidence layer with a separate GLM annotation layer. Exploit common prompt prefixes opportunistically; measure encoding fidelity, classification quality, model variation and caching separately. The immediate execution design is [P01 and a conditional six-call cache smoke](minimal-test.md), grounded in the [experiment review](experiment-review.md). Use sanitized S01 fixtures to test structural transcoding first. S09 remains a separately defined, deferred status-boundary study. The P01 document governs its prompt, limits, fixtures and schedule; the S09 sections below remain the later study design.
 
 ```text
 bounded trace records → deterministic facts → lossless evidence packet
@@ -86,9 +86,9 @@ Use conservative tokenizer bounds for admission until exact provider/template to
 
 Within S09, record caching observationally only. No warmup, cache-busting, extra trials or batching. Cache-hit rate requires provider token/billing evidence. Non-streaming wall time is end-to-end latency, not time-to-first-token.
 
-After S09, a separately frozen optional 12-call cache probe may compare three blocks of four calls: shared-prefix first/repeat and matched-length unique-prefix controls, with block order counterbalanced. Use an inert fixed-length block tag near the beginning solely for this probe, semantically identical instructions and equivalent suffix sizes. First-use is only nominally cold; token-prefix overlap and server residency are not controllable. Keep classification scores and request size matched, count every call, use the same budget guards, and report observed warm/control results rather than causal infrastructure claims. If cache counters/billing evidence are absent, report latency distributions with cache effectiveness inconclusive. This probe is a later study, not added to the initial 18 calls.
+**Deferred larger alternative, superseded for the immediate smoke by minimal-test.md:** a separately frozen 12-call cache probe may compare three blocks of four calls: shared-prefix first/repeat and matched-length unique-prefix controls, with block order counterbalanced. Use an inert fixed-length block tag near the beginning solely for this probe, semantically identical instructions and equivalent suffix sizes. First-use is only nominally cold; token-prefix overlap and server residency are not controllable. Keep classification scores and request size matched, count every call, use the same budget guards, and report observed warm/control results rather than causal infrastructure claims. If cache counters/billing evidence are absent, report latency distributions with cache effectiveness inconclusive. This probe is a later study, not added to the initial 18 calls.
 
-## Implementation sequence and acceptance
+## Deferred S09 implementation sequence and acceptance
 
 1. **Freeze inputs and boundaries.** Author three S06 cases: unmapped `14`; mapped child `14`; same mapping plus independent enclosing success. Make normalized and symbolic forms equal-information. Freeze expected facts separately from prompts and record annotator independence/exposure. Do not include S06's fourth non-error control as an extra S09 case.
 2. **Build offline infrastructure.** Add prompt builder, narrow transport boundary, output validator and immutable attempt ledger. Test no credential logging, model mismatch, unknown usage, invalid JSON, timeouts, budget refusal, and restart behavior. Replay scoring without network.
@@ -99,10 +99,14 @@ After S09, a separately frozen optional 12-call cache probe may compare three bl
 
 ## Constitution Check
 
-Pre-design and post-design: PASS for this bounded research plan. Evidence/provenance and unknowns preserved (I); bounded packets and separate retrieval (II); GLM-only measured costs, conservative limits (III); frozen matched comparisons, failures retained and later unseen evaluation distinguished (IV); environment credentials, portable artifacts and final submission boundaries retained (V). No claimed improvement or production readiness. No exception required.
+Pre-design and post-design: PASS under constitution 1.0.3 for this bounded research plan. The P01 amendment preserves deterministic preparation and keeps model transcoding experimental. Evidence/provenance and unknowns preserved (I); bounded packets and separate retrieval (II); GLM-only measured costs, conservative limits (III); frozen matched comparisons, failures retained and later unseen evaluation distinguished (IV); environment credentials, portable artifacts and final submission boundaries retained (V). No claimed improvement or production readiness. No exception required.
 
 ## Project Structure
 
 Documentation in this feature: `spec.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/annotation-study.md`, `quickstart.md`, `checklists/requirements.md`. Dependency-ordered `tasks.md` belongs to the next Spec Kit command.
 
 Proposed new modules under `experiments/semantic_encoding_v1/`: `prompt_pack.py`, `featherless.py`, `annotations.py`, `run_s09.py`, `score_s09.py`, `test_s09.py`, `fixtures/s09/`. Reuse canonical JSON/hash and run-artifact conventions where contracts fit. Keep the S01 codec restricted; do not broaden its contract incidentally. No changes to `agents/submission.py`, `rca/outputs.py` or previous run artifacts in this phase.
+
+## P01 design artifacts
+
+[Minimal test](minimal-test.md), [review](experiment-review.md), [candidate prompt](prompts/structural-v1.txt), [frozen design inputs and evaluator-only schedule](design-fixtures/p01/evaluation-manifest.json), and [offline design validation](design-fixtures/p01/design-validation.json) make the immediate test reviewable. These are design assets, not implemented runners or model results.

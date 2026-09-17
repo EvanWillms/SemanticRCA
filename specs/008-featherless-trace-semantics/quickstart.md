@@ -1,5 +1,7 @@
 # Validation guide
 
+For the immediate P01 test, use [minimal-test.md](minimal-test.md), its six checked design inputs and exact prompt. There is no P01 runner yet. Perform its zero-call readiness checks, then implement the bounded runner/scorer before any live dispatch. The S09 commands below remain future, deferred examples.
+
 This is a future execution guide. S09 modules and fixtures described here do not yet exist. This planning task made no paid model calls.
 
 ## Existing baseline
