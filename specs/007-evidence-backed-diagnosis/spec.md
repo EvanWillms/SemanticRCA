@@ -131,3 +131,9 @@ The [acceptance matrix](acceptance.md) maps every requirement. Artifact and eval
 - Best-guess output follows feature 002. Explicit operational failure when no legal answer exists fails final diagnosis acceptance; it is not valid benchmark abstention.
 - Provider integration and routing decisions must comply with feature 002 and be frozen during planning. Controlled model responses suffice for local correctness checks; this documentation task authorizes no paid run.
 - No accuracy threshold is invented here. Final effectiveness, routed/single-model comparison, evidence review and release remain feature 002 requirements owned by the project maintainer.
+
+## Consuming Featherless trace annotations
+
+[ADR 0015](../../docs/adr/0015-featherless-trace-semantics-and-prefix-caching.md) and [feature 008](../008-featherless-trace-semantics/spec.md) define a possible descriptive evidence supplier. Consume validated annotations with their original packet references, definition versions, support strength, scope and limitations. A descriptive class, model agreement or prefix-cache hit is not causal evidence; retain supported facts and unresolved interpretations separately when evaluating an incident hypothesis.
+
+SC-001 integration fixtures must include unmapped status, mapped child error with independently verified enclosing success, unsupported mechanism proposals and conflicting annotations. Each must retain uncertainty without promoting a label into fault reason or onset. SC-003 accounting must include every annotation and diagnostic call under feature 002 budgets. Failed/unknown annotations may reduce available evidence but do not waive the final best-guess or explicit operational-failure contract. S09 success alone does not satisfy SC-006 or establish diagnostic accuracy.

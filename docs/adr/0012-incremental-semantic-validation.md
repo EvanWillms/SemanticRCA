@@ -29,3 +29,7 @@ The four selected real traces are exposed engineering controls. Their prior anal
 Implementing the entire ontology before testing would increase cost without localizing representation failures. Starting with causal diagnosis would conflate extraction, selection, interpretation, and scoring. Requiring early tiny fixtures to compress would encourage dropping facts. The chosen sequence delays broad integration but makes negative results useful and implementation choices reversible.
 
 The handoff fixes the immediate experiment scope; it does not launch experiments or require repeated permission during a later authorized execution. [ADR 0002](0002-descriptive-semantic-compression.md) continues to define the representation, [ADR 0010](0010-faceted-semantic-labeling.md) defines annotation boundaries, and [ADR 0011](0011-scoped-error-interpretation.md) defines error semantics. All slices remain untested at the time of this decision.
+
+## Featherless study specialization
+
+[ADR 0015](0015-featherless-trace-semantics-and-prefix-caching.md) and [feature 008](../../specs/008-featherless-trace-semantics/spec.md) define the Featherless request, usage and cache boundaries for S09. The 18-attempt study gains no hidden warmups, repairs or answer reuse. A deliberate caching probe remains a separately frozen later experiment; it cannot substitute for fidelity or model-label validation.

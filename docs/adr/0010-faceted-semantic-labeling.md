@@ -27,3 +27,7 @@ The initial representation is structured and inspectable, not a vector embedding
 ## Evidence and validation
 
 The [taxonomy synthesis](../research/reliability-taxonomy-review.v1/04-candidate-synthesis.v1.md) supplies the faceted design; the [dataset-grounded review](../research/reliability-taxonomy-review.v1/06-selected-trace-semantic-encoding-experiment.v1.md) maps it to available fields. Four inspected development traces demonstrate available structure/status/timing facts, not validated labels. [ADR 0012](0012-incremental-semantic-validation.md) governs testing; its initial structural experiment and later timing/LLM slices have no results yet.
+
+## Featherless specialization
+
+[ADR 0015](0015-featherless-trace-semantics-and-prefix-caching.md) applies these claim boundaries to GLM annotation sidecars, versioned prompt packs and independent classification/caching measurements. It does not replace this ADR's facet or evidence model.
