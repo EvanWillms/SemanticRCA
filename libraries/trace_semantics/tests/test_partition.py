@@ -148,6 +148,139 @@ def test_malformed_parent_value_is_deferred_without_hashing_or_crashing():
     assert any(item["reason"] == "malformed_parent" for item in result["deferred"])
 
 
+def test_none_parent_is_not_an_implicit_root():
+    result = partition_traces([{
+        "trace_id": "t4", "deployment": "prod-a",
+        "spans": [_span("root", parent_span=None)],
+    }])
+
+    assert result["traces"][0]["edges"] == []
+    assert any(item["reason"] == "malformed_parent" for item in result["deferred"])
+
+
+def test_int_and_float_span_ids_are_distinct_type_sensitive_identities():
+    result = partition_traces([{
+        "trace_id": "t4", "deployment": "prod-a",
+        "spans": [
+            _span(1),
+            _span(1.0),
+            _span("child-int", parent_span=1),
+            _span("child-float", parent_span=1.0),
+        ],
+    }])
+
+    nodes = result["traces"][0]["nodes"]
+    assert [(type(node["span_id"]), node["span_id"]) for node in nodes] == [
+        (int, 1), (float, 1.0), (str, "child-int"), (str, "child-float")
+    ]
+    assert all(node["identity_conflict"] is False for node in nodes)
+    assert result["traces"][0]["coverage"]["occurrence_count"] == 4
+    edges = result["traces"][0]["edges"]
+    assert any(
+        edge["child_span_id"] == "child-int"
+        and type(edge["parent_span_id"]) is int
+        and edge["parent_span_id"] == 1
+        and edge["resolved"]
+        for edge in edges
+    )
+    assert any(
+        edge["child_span_id"] == "child-float"
+        and type(edge["parent_span_id"]) is float
+        and edge["parent_span_id"] == 1.0
+        and edge["resolved"]
+        for edge in edges
+    )
+
+
+def test_int_and_float_trace_ids_are_not_merged_as_duplicate_envelopes():
+    int_span = _span("s-int")
+    int_span["raw"]["trace_id"] = 1
+    float_span = _span("s-float")
+    float_span["raw"]["trace_id"] = 1.0
+    result = partition_traces([
+        {"trace_id": 1, "deployment": "prod-a", "spans": [int_span]},
+        {"trace_id": 1.0, "deployment": "prod-a", "spans": [float_span]},
+    ])
+
+    assert len(result["traces"]) == 2
+    assert not any(item["reason"] == "duplicate_trace_envelope" for item in result["deferred"])
+
+
+def test_boolean_span_id_is_preserved_and_deferred_without_identity_promotion():
+    boolean_span = _span(True)
+    integer_span = _span(1)
+    foreign_bool_trace = _span("foreign")
+    foreign_bool_trace["raw"]["trace_id"] = True
+    result = partition_traces([{
+        "trace_id": "t4", "deployment": "prod-a",
+        "spans": [boolean_span, integer_span, foreign_bool_trace],
+    }])
+
+    nodes = result["traces"][0]["nodes"]
+    assert len(nodes) == 1
+    assert type(nodes[0]["span_id"]) is int and nodes[0]["span_id"] == 1
+    assert result["traces"][0]["evidence"][0]["raw"]["span_id"] is True
+    assert any(item["reason"] == "missing_span_id" for item in result["deferred"])
+    assert any(item["reason"] == "trace_id_mismatch" for item in result["deferred"])
+
+
+def test_malformed_envelope_evidence_ids_are_globally_unique():
+    malformed_span = {"raw": {"trace_id": None, "span_id": "s", "parent_span": ""}, "locator": None}
+    result = partition_traces([
+        {"trace_id": None, "deployment": None, "spans": [malformed_span]},
+        {"trace_id": None, "deployment": None, "spans": [copy.deepcopy(malformed_span)]},
+    ])
+
+    evidence_ids = [item["evidence_id"] for trace in result["traces"] for item in trace["evidence"]]
+    referenced_ids = [
+        evidence_id
+        for item in result["deferred"] if item["reason"] == "missing_locator"
+        for evidence_id in item["evidence_ids"]
+    ]
+    assert len(evidence_ids) == len(set(evidence_ids)) == 2
+    assert sorted(referenced_ids) == sorted(evidence_ids)
+
+
+def test_later_valid_duplicate_envelope_rows_survive_earlier_malformed_spans():
+    valid = {"trace_id": "ordered-duplicates", "deployment": "prod-a", "spans": [_span("s1")]}
+    valid["spans"][0]["raw"]["trace_id"] = "ordered-duplicates"
+    result = partition_traces([
+        {"trace_id": "ordered-duplicates", "deployment": "prod-a", "spans": None},
+        valid,
+    ])
+
+    assert [node["span_id"] for node in result["traces"][0]["nodes"]] == ["s1"]
+    assert any(item["reason"] == "malformed_spans" and item["raw"] is None for item in result["deferred"])
+
+
+def test_duplicate_context_nonunit_variation_and_equivalent_units_do_not_conflict():
+    first = {"trace_id": "context", "deployment": "prod-a", "context": {
+        "route": "/a", "timestamp_unit": "ms", "duration_unit": "ms",
+    }, "spans": [_span("s1")]}
+    first["spans"][0]["raw"]["trace_id"] = "context"
+    second = copy.deepcopy(first)
+    second["context"] = {
+        "route": "/b", "timestamp_unit": "milliseconds", "duration_unit": "milliseconds",
+    }
+    second["spans"][0]["locator"] = {"source": "other", "row": 2}
+    result = partition_traces([first, second], EncodingPolicy(timestamp_unit="ms", duration_unit="ms"))
+
+    assert not any(item["reason"] == "conflicting_timing_unit" for item in result["deferred"])
+    assert result["traces"][0]["raw_envelopes"] == [first, second]
+
+
+def test_explicit_context_unit_with_absent_policy_unit_is_unknown_not_conflicting():
+    trace = {"trace_id": "unknown-unit-policy", "deployment": "prod-a", "context": {
+        "timestamp_unit": "ms", "duration_unit": "ms",
+    }, "spans": [_span("s1")]}
+    trace["spans"][0]["raw"]["trace_id"] = "unknown-unit-policy"
+    result = partition_traces([trace])
+
+    reasons = {item["reason"] for item in result["deferred"]}
+    assert "unknown_timing_unit" in reasons
+    assert "conflicting_timing_unit" not in reasons
+
+
 def test_exact_duplicate_records_keep_physical_evidence_without_inflating_occurrence():
     first = _span("same")
     second = copy.deepcopy(first)
@@ -173,6 +306,22 @@ def test_changed_raw_record_with_same_span_id_is_a_conflict_without_winner():
     assert node["semantic_operation"] is None
     assert node["operation_name"] is None
     assert any(item["reason"] == "conflicting_identity" for item in result["deferred"])
+
+
+def test_conflicting_operation_deferrals_follow_each_record():
+    result = partition_traces([{
+        "trace_id": "t4", "deployment": "prod-a",
+        "spans": [
+            _span("same", operation_name="READ"),
+            _span("same", operation_name="MYSTERY"),
+        ],
+    }], EncodingPolicy(operation_mappings={"READ": "storage_read"}))
+
+    unknown = [item for item in result["deferred"] if item["reason"] == "unknown_operation"]
+    assert len(unknown) == 1
+    assert unknown[0]["raw"]["operation_name"] == "MYSTERY"
+    second_evidence = result["traces"][0]["nodes"][0]["occurrences"][1]["evidence_id"]
+    assert unknown[0]["evidence_ids"] == [second_evidence]
 
 
 def test_conflict_deferrals_reference_each_record_and_keep_group_membership():
@@ -237,6 +386,31 @@ def test_parent_edges_are_trace_scoped_and_unresolved_for_missing_or_self_links(
     assert any(item["reason"] == "self_parent" for item in result["deferred"])
 
 
+def test_conflicting_parent_references_keep_each_observed_candidate_edge():
+    child_from_a = _span("child", parent_span="a")
+    child_from_b = _span("child", parent_span="b")
+    result = partition_traces([{
+        "trace_id": "t4", "deployment": "prod-a",
+        "spans": [_span("a"), _span("b"), child_from_a, child_from_b],
+    }])
+
+    edges = [edge for edge in result["traces"][0]["edges"] if edge["child_span_id"] == "child"]
+    assert [(edge["parent_span_id"], edge["resolved"]) for edge in edges] == [
+        ("a", False), ("b", False)
+    ]
+    child_evidence = {
+        occurrence["evidence_id"]
+        for occurrence in result["traces"][0]["nodes"][-1]["occurrences"]
+    }
+    assert {evidence_id for edge in edges for evidence_id in edge["evidence_ids"]} == child_evidence
+    assert any(
+        item["reason"] == "conflicting_parent_reference"
+        and item["raw"] == ["a", "b"]
+        and set(item["evidence_ids"]) == child_evidence
+        for item in result["deferred"]
+    )
+
+
 def test_deep_parent_cycle_is_detected_iteratively():
     spans = []
     depth = 250
@@ -273,7 +447,7 @@ def test_duplicate_trace_envelopes_merge_evidence_and_retain_every_raw_envelope(
     assert trace["raw_envelopes"] == [first, second]
     assert trace["coverage"]["record_count"] == 2
     assert any(item["reason"] == "duplicate_trace_envelope" for item in result["deferred"])
-    assert any(item["reason"] == "conflicting_timing_unit" for item in result["deferred"])
+    assert any(item["reason"] == "unknown_timing_unit" for item in result["deferred"])
 
 
 def test_partition_is_detached_and_serialization_is_repeatable():

@@ -18,11 +18,15 @@ unknown operation returned before description construction, retained raw
 evidence and deterministic output. After installation, use
 `python3 -m trace_semantics.demo` directly.
 
-This checkpoint is ready for the authored happy path: complete Track-1-shaped
-records, string identifiers, `""` as the root parent marker, and a caller-scoped
-operation/unit policy. Broader hardening remains explicit in
-[`review.md`](../../specs/011-deterministic-trace-domain/review.md); this is not
-full acceptance of the original robustness specification.
+The authored demo remains the smallest example. This follow-up also preserves
+malformed evidence, keeps conflicting parent candidates unresolved, and checks
+the structural consistency of supplied partitions. The shared demo checkout
+is independent of this `fix/trace-semantics-robustness` branch.
+
+Identifiers retain their JSON scalar type: integer `1`, floating-point `1.0`
+and string `"1"` are distinct. Boolean identifiers are deferred. Only `""` is a
+root marker; a null or malformed parent is unresolved rather than an implicit
+root. Exact source records and source envelopes remain recoverable.
 
 The runtime uses the Python standard library. Its input is supplied evidence;
 it does not retrieve telemetry, call models or import the SymbolicRCA runtime.
@@ -126,3 +130,17 @@ serialized result. It does not assert structural equivalence after renaming
 identifiers, changing source locators or reordering raw arrays. Status meaning,
 business outcome, retry behavior, target service and causation require separate
 evidence or processing.
+
+## Description qualifications
+
+Descriptions expose source context and scoped qualifications for supplied and
+derived fields. The encoding schema and caller operation policy identify their
+definitions. Evidence, parent references and counts remain descriptive; code
+production does not verify source authenticity or the caller's operation
+interpretation. No status outcome, retry, target or causal verdict is inferred.
+
+`describe` checks structural shape, evidence references and coverage consistency;
+it does not authenticate telemetry or prove that a forged but consistent
+partition came from `partition_traces`. Use `encode_traces` when starting with
+source traces. JSON serialization preserves escaped strings and rejects cycles
+and non-finite numeric values with caller errors.

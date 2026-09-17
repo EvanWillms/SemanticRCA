@@ -91,11 +91,30 @@ _TIME_FACTORS = {
     "nanoseconds": 1e-9,
 }
 def _canonical(value: Any) -> str:
-    return json.dumps(value, ensure_ascii=False, allow_nan=False, sort_keys=True, separators=(",", ":"))
+    return json.dumps(value, ensure_ascii=True, allow_nan=False, sort_keys=True, separators=(",", ":"))
 def _unit_kind(unit: Any) -> Any:
     return _TIME_FACTORS.get(unit) if isinstance(unit, str) else None
 def _is_scalar_id(value: Any) -> bool:
     return isinstance(value, (str, int, float)) and not isinstance(value, bool)
+def _identity_key(value: Any) -> tuple[type[Any], str]:
+    """Return a hash key that keeps JSON scalar identifier types distinct."""
+    return (type(value), _canonical(value))
+def _is_root_marker(value: Any) -> bool:
+    return isinstance(value, str) and value == ""
+def _is_trace_id(value: Any) -> bool:
+    return _is_scalar_id(value) and not _is_root_marker(value)
+def _context_unit_conflict(context: Any, policy: EncodingPolicy) -> bool:
+    """Reject source unit declarations that contradict the selected policy."""
+    if not isinstance(context, dict):
+        return False
+    for field_name in ("timestamp_unit", "duration_unit"):
+        declared = context.get(field_name)
+        if declared is None:
+            continue
+        policy_unit = getattr(policy, field_name)
+        if policy_unit is not None and _unit_kind(declared) != _unit_kind(policy_unit):
+            return True
+    return False
 def _deferred(
     *,
     reason: str,
@@ -120,15 +139,25 @@ def _span_record_parts(record: Any) -> tuple[Any, Any, bool]:
     if not isinstance(record, dict) or "raw" not in record:
         return record, None, False
     return record.get("raw"), record.get("locator"), isinstance(record.get("raw"), dict)
-def _new_evidence(record: Any, raw: Any, locator: Any, trace_id: Any, deployment: Any, ordinal: int) -> dict[str, Any]:
+def _new_evidence(
+    record: Any,
+    raw: Any,
+    locator: Any,
+    trace_id: Any,
+    deployment: Any,
+    envelope_ordinal: int,
+    ordinal: int,
+) -> dict[str, Any]:
     """Build a stable, detached physical-record evidence item."""
     digest = hashlib.sha256(_canonical({
         "trace_id": trace_id,
         "deployment": deployment,
         "raw": raw,
         "locator": locator,
+        "envelope_ordinal": envelope_ordinal,
+        "ordinal": ordinal,
     }).encode("utf-8")).hexdigest()[:20]
-    evidence_id = f"e-{digest}"
+    evidence_id = f"e-{envelope_ordinal}-{ordinal}-{digest}"
     return {
         "evidence_id": evidence_id,
         "trace_id": trace_id,
@@ -168,8 +197,10 @@ def _timing_facet(
     context_ts_unit = context.get("timestamp_unit")
     context_duration_unit = context.get("duration_unit")
     if (context.get("__context_conflict__")
-            or (context_ts_unit is not None and _unit_kind(context_ts_unit) != _unit_kind(policy.timestamp_unit))
-            or (context_duration_unit is not None and _unit_kind(context_duration_unit) != _unit_kind(policy.duration_unit))):
+            or (context_ts_unit is not None and policy.timestamp_unit is not None
+                and _unit_kind(context_ts_unit) != _unit_kind(policy.timestamp_unit))
+            or (context_duration_unit is not None and policy.duration_unit is not None
+                and _unit_kind(context_duration_unit) != _unit_kind(policy.duration_unit))):
         deferred.append(_deferred(
             reason="conflicting_timing_unit",
             facet="timing",
@@ -244,6 +275,7 @@ def _process_trace(
     policy: EncodingPolicy,
     output_deferred: list[dict[str, Any]],
     *,
+    envelope_ordinal: int,
     extra_envelopes: list[Any] | None = None,
     source_envelope: Any = None,
     context_conflict: bool = False,
@@ -256,7 +288,7 @@ def _process_trace(
     if not isinstance(envelope, dict):
         output_deferred.append(_deferred(reason="malformed_trace", facet="trace", raw=envelope))
         return result
-    context_valid = _is_scalar_id(trace_id) and isinstance(deployment, str) and bool(deployment)
+    context_valid = _is_trace_id(trace_id) and isinstance(deployment, str) and bool(deployment)
     if not context_valid:
         output_deferred.append(_deferred(
             reason="malformed_trace_context",
@@ -278,13 +310,15 @@ def _process_trace(
     timing_context = envelope.get("context")
     if context_conflict:
         timing_context = {"__context_conflict__": True}
-    groups: dict[Any, dict[str, Any]] = {}
-    evidence_by_span: dict[Any, list[str]] = {}
-    records_by_span: dict[Any, list[dict[str, Any]]] = {}
+    groups: dict[tuple[type[Any], str], dict[str, Any]] = {}
+    evidence_by_span: dict[tuple[type[Any], str], list[str]] = {}
+    records_by_span: dict[tuple[type[Any], str], list[dict[str, Any]]] = {}
     evidence_ids_seen: dict[str, int] = {}
     for ordinal, record in enumerate(spans):
         raw, locator, wrapped_valid = _span_record_parts(record)
-        evidence = _new_evidence(record, raw, locator, trace_id, deployment, ordinal)
+        evidence = _new_evidence(
+            record, raw, locator, trace_id, deployment, envelope_ordinal, ordinal
+        )
         base_id = evidence["evidence_id"]
         suffix = evidence_ids_seen.get(base_id, 0)
         evidence_ids_seen[base_id] = suffix + 1
@@ -318,7 +352,7 @@ def _process_trace(
         raw_trace_id = _field(raw, "trace_id")
         if not context_valid:
             continue
-        if raw_trace_id != trace_id:
+        if not _is_trace_id(raw_trace_id) or _identity_key(raw_trace_id) != _identity_key(trace_id):
             output_deferred.append(_deferred(
                 reason="trace_id_mismatch",
                 facet="identity",
@@ -357,33 +391,35 @@ def _process_trace(
                 raw=raw,
             ))
             continue
-        evidence_by_span.setdefault(span_id, []).append(evidence_id)
-        records_by_span.setdefault(span_id, []).append({"raw": raw, "evidence_id": evidence_id, "locator": locator})
+        span_key = _identity_key(span_id)
+        evidence_by_span.setdefault(span_key, []).append(evidence_id)
+        records_by_span.setdefault(span_key, []).append({"raw": raw, "evidence_id": evidence_id, "locator": locator})
         fingerprint = _canonical(raw)
-        group = groups.get(span_id)
+        group = groups.get(span_key)
         if group is None:
-            groups[span_id] = {
+            groups[span_key] = {
                 "span_id": span_id,
                 "fingerprint": fingerprint,
                 "identity": _node_identity(raw),
-                "records": records_by_span[span_id],
+                "records": records_by_span[span_key],
                 "conflict": False,
             }
         else:
-            group["records"] = records_by_span[span_id]
+            group["records"] = records_by_span[span_key]
             if fingerprint != group["fingerprint"]:
                 group["conflict"] = True
     # Emit nodes in first-seen order; no sorting is used to imply temporal order.
-    for span_id, group in groups.items():
+    for span_key, group in groups.items():
+        span_id = group["span_id"]
         records = group["records"]
         first_raw = records[0]["raw"]
         op_name = _field(first_raw, "operation_name")
         operation_known = isinstance(op_name, str) and op_name in policy.operation_mappings
         semantic_operation = policy.operation_mappings.get(op_name) if operation_known and not group["conflict"] else None
-        node_evidence = [record["evidence_id"] for record in records]
         for record in records:
             raw = record["raw"]
             evidence_id = record["evidence_id"]
+            raw_operation_name = _field(raw, "operation_name")
             if group["conflict"]:
                 output_deferred.append(_deferred(
                     reason="conflicting_identity",
@@ -394,7 +430,7 @@ def _process_trace(
                     evidence_ids=[evidence_id],
                     raw=raw,
                 ))
-            if not isinstance(op_name, str) or op_name not in policy.operation_mappings:
+            if not isinstance(raw_operation_name, str) or raw_operation_name not in policy.operation_mappings:
                 output_deferred.append(_deferred(
                     reason="unknown_operation",
                     facet="operation",
@@ -459,12 +495,18 @@ def _process_trace(
         1 for group in groups.values() if not group["conflict"]
     )
     # Parent references and cycle checks are scoped to this one trace envelope.
-    parent_refs: dict[Any, Any] = {}
-    parent_evidence: dict[tuple[Any, Any], list[str]] = {}
-    for span_id, group in groups.items():
+    parent_refs: dict[tuple[type[Any], str], Any] = {}
+    parent_candidates: dict[tuple[type[Any], str], list[Any]] = {}
+    parent_evidence: dict[
+        tuple[tuple[type[Any], str], tuple[type[Any], str]], list[str]
+    ] = {}
+    for span_key, group in groups.items():
+        span_id = group["span_id"]
         all_refs = [_field(record["raw"], "parent_span") for record in group["records"]]
-        refs = [ref for ref in all_refs if ref not in (None, "")]
-        malformed_refs = [ref for ref in refs if not _is_scalar_id(ref)]
+        refs = [ref for ref in all_refs if not _is_root_marker(ref) and _is_scalar_id(ref)]
+        malformed_refs = [
+            ref for ref in all_refs if not _is_root_marker(ref) and not _is_scalar_id(ref)
+        ]
         if malformed_refs:
             output_deferred.append(_deferred(
                 reason="malformed_parent",
@@ -472,27 +514,36 @@ def _process_trace(
                 trace_id=trace_id,
                 deployment=deployment,
                 span_id=span_id,
-                evidence_ids=evidence_by_span.get(span_id),
+                evidence_ids=evidence_by_span.get(span_key),
                 raw=malformed_refs,
             ))
             refs = [ref for ref in refs if _is_scalar_id(ref)]
         if refs:
-            parent_refs[span_id] = refs[0]
+            candidate_keys: list[tuple[type[Any], str]] = []
+            candidates: list[Any] = []
+            for ref in refs:
+                ref_key = _identity_key(ref)
+                if ref_key not in candidate_keys:
+                    candidate_keys.append(ref_key)
+                    candidates.append(ref)
+            parent_candidates[span_key] = candidates
+            if len(candidates) == 1:
+                parent_refs[span_key] = candidates[0]
             for record, ref in zip(group["records"], all_refs):
-                if ref not in (None, "") and _is_scalar_id(ref):
-                    parent_evidence.setdefault((span_id, ref), []).append(record["evidence_id"])
-        if len({_canonical(ref) for ref in refs}) > 1:
+                if not _is_root_marker(ref) and _is_scalar_id(ref):
+                    parent_evidence.setdefault((span_key, _identity_key(ref)), []).append(record["evidence_id"])
+        if len(parent_candidates.get(span_key, [])) > 1:
             output_deferred.append(_deferred(
                 reason="conflicting_parent_reference",
                 facet="parent",
                 trace_id=trace_id,
                 deployment=deployment,
                 span_id=span_id,
-                evidence_ids=evidence_by_span.get(span_id),
+                evidence_ids=evidence_by_span.get(span_key),
                 raw=refs,
             ))
-    cycle_nodes: set[Any] = set()
-    globally_seen: set[Any] = set()
+    cycle_nodes: set[tuple[type[Any], str]] = set()
+    globally_seen: set[tuple[type[Any], str]] = set()
     for start in parent_refs:
         if start in globally_seen:
             continue
@@ -505,41 +556,48 @@ def _process_trace(
                 break
             position[current] = len(path)
             path.append(current)
-            current = parent_refs[current]
+            current = _identity_key(parent_refs[current])
         globally_seen.update(path)
-    for child, parent in parent_refs.items():
-        edge_evidence = parent_evidence.get((child, parent), evidence_by_span.get(child, []))
-        reasons: list[str] = []
-        parent_group = groups.get(parent)
-        child_group = groups.get(child)
-        if parent_group is None:
-            reasons.append("missing_parent")
-        if child == parent:
-            reasons.append("self_parent")
-        if child in cycle_nodes:
-            reasons.append("cyclic_parent")
-        if child_group and child_group["conflict"]:
-            reasons.append("conflicting_identity")
-        if parent_group and parent_group["conflict"]:
-            reasons.append("conflicting_parent_identity")
-        resolved = not reasons
-        result["edges"].append({
-            "child_span_id": _copy_json(child),
-            "parent_span_id": _copy_json(parent),
-            "relation": "recorded_parent",
-            "resolved": resolved,
-            "evidence_ids": list(edge_evidence),
-        })
-        for reason in reasons:
-            output_deferred.append(_deferred(
-                reason=reason,
-                facet="parent",
-                trace_id=trace_id,
-                deployment=deployment,
-                span_id=child,
-                evidence_ids=edge_evidence,
-                raw={"parent_span": parent},
-            ))
+    for child, parents in parent_candidates.items():
+        child_id = groups[child]["span_id"]
+        for parent in parents:
+            parent_key = _identity_key(parent)
+            edge_evidence = parent_evidence.get((child, parent_key), evidence_by_span.get(child, []))
+            reasons: list[str] = []
+            parent_group = groups.get(parent_key)
+            child_group = groups.get(child)
+            if len(parents) > 1:
+                reasons.append("conflicting_parent_reference")
+            if parent_group is None:
+                reasons.append("missing_parent")
+            if child == parent_key:
+                reasons.append("self_parent")
+            if child in cycle_nodes:
+                reasons.append("cyclic_parent")
+            if child_group and child_group["conflict"]:
+                reasons.append("conflicting_identity")
+            if parent_group and parent_group["conflict"]:
+                reasons.append("conflicting_parent_identity")
+            resolved = not reasons
+            result["edges"].append({
+                "child_span_id": _copy_json(child_id),
+                "parent_span_id": _copy_json(parent),
+                "relation": "recorded_parent",
+                "resolved": resolved,
+                "evidence_ids": list(edge_evidence),
+            })
+            for reason in reasons:
+                if reason == "conflicting_parent_reference":
+                    continue
+                output_deferred.append(_deferred(
+                    reason=reason,
+                    facet="parent",
+                    trace_id=trace_id,
+                    deployment=deployment,
+                    span_id=child_id,
+                    evidence_ids=edge_evidence,
+                    raw={"parent_span": parent},
+                ))
     return result
 def partition_traces(traces: list[dict[str, Any]], policy: EncodingPolicy | None = None) -> dict[str, Any]:
     """Partition selected traces into deterministic facts and local deferrals.
@@ -561,24 +619,25 @@ def partition_traces(traces: list[dict[str, Any]], policy: EncodingPolicy | None
     }
     # Merge duplicate trace/deployment envelopes into one logical trace.  Their
     # raw envelopes remain available and the duplicate itself is deferred.
-    grouped: dict[tuple[Any, Any], tuple[Any, list[Any]]] = {}
-    order: list[tuple[Any, Any] | tuple[str, int]] = []
+    grouped: dict[Any, tuple[int, Any, list[tuple[int, Any]]]] = {}
+    order: list[Any] = []
     for index, envelope in enumerate(detached):
-        if isinstance(envelope, dict) and _is_scalar_id(envelope.get("trace_id")) and isinstance(envelope.get("deployment"), str):
-            key = (envelope.get("trace_id"), envelope.get("deployment"))
+        if isinstance(envelope, dict) and _is_trace_id(envelope.get("trace_id")) and isinstance(envelope.get("deployment"), str):
+            key = (_identity_key(envelope.get("trace_id")), envelope.get("deployment"))
             if key in grouped:
-                grouped[key][1].append(envelope)
+                grouped[key][2].append((index, envelope))
             else:
-                grouped[key] = (envelope, [])
+                grouped[key] = (index, envelope, [])
                 order.append(key)
         else:
             key = ("__malformed__", index)
             order.append(key)
-            grouped[key] = (envelope, [])
+            grouped[key] = (index, envelope, [])
     for key in order:
-        envelope, duplicates = grouped[key]
+        envelope_ordinal, envelope, duplicates = grouped[key]
+        duplicate_envelopes = [item for _, item in duplicates]
         if duplicates:
-            for duplicate in duplicates:
+            for _, duplicate in duplicates:
                 output["deferred"].append(_deferred(
                     reason="duplicate_trace_envelope",
                     facet="trace",
@@ -587,17 +646,33 @@ def partition_traces(traces: list[dict[str, Any]], policy: EncodingPolicy | None
                 ))
         combined = _copy_json(envelope)
         context_conflict = False
-        if duplicates and isinstance(combined, dict) and isinstance(combined.get("spans"), list):
-            for duplicate in duplicates:
-                if _canonical(duplicate.get("context")) != _canonical(combined.get("context")):
-                    context_conflict = True
-                if isinstance(duplicate, dict) and isinstance(duplicate.get("spans"), list):
-                    combined["spans"].extend(_copy_json(duplicate["spans"]))
+        if duplicates and isinstance(combined, dict):
+            all_envelopes = [envelope, *duplicate_envelopes]
+            span_lists = [item.get("spans") for item in all_envelopes]
+            valid_span_lists = [spans for spans in span_lists if isinstance(spans, list)]
+            combined["spans"] = []
+            for spans in valid_span_lists:
+                combined["spans"].extend(_copy_json(spans))
+            for spans in span_lists:
+                if not isinstance(spans, list):
+                    output["deferred"].append(_deferred(
+                        reason="malformed_spans",
+                        facet="trace",
+                        trace_id=envelope.get("trace_id"),
+                        deployment=envelope.get("deployment"),
+                        raw=spans,
+                    ))
+            context_conflict = any(
+                _context_unit_conflict(item.get("context"), selected_policy)
+                for item in all_envelopes
+                if isinstance(item, dict)
+            )
         output["traces"].append(_process_trace(
             combined,
             selected_policy,
             output["deferred"],
-            extra_envelopes=duplicates,
+            envelope_ordinal=envelope_ordinal,
+            extra_envelopes=duplicate_envelopes,
             source_envelope=envelope,
             context_conflict=context_conflict,
         ))
