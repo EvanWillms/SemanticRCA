@@ -1,2 +1,3 @@
 # Track 1 dataset (downloaded separately; too large for Git)
 /data/track-1/
+.env
