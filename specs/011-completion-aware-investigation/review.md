@@ -1,57 +1,53 @@
-# RCA domain library: review scope and evidence
+# RCA domain library review
 
-Status: implementation pending public-boundary confirmation. This is a live
-evidence record, not a completed code review or library-readiness claim.
+Status: **pass for the minimal demo scope**, 2026-09-17. Broader feature acceptance
+remains deferred under [demo scope](demo-scope.md).
 
-## Owned scope
+The owning task reviewed all delivered ingestion, investigation, demo, test and
+packaging files. [The inventory](reviewed-code-inventory.json) records their exact
+SHA-256 hashes. Concurrent work outside this inventory is not claimed as reviewed.
 
-The task will own all files under `libraries/rca_domain`, its examples, packaging
-and tests, and the implementation artifacts in this feature directory. That
-library directory is absent at baseline. The trace encoder scaffold under
-`libraries/trace_semantics` belongs to separate work and is not this library's
-implementation or acceptance evidence.
+Luna extra-high workers implemented independent ingestion and loop TDD slices,
+then a producer-to-loop demo. See [ingestion](ingestion-tdd.md),
+[loop](loop-tdd.md) and [demo](demo-tdd.md) red/green records.
+Independent parallel reviews covered standards/core integrity (demo_tdd) and
+specification/demo acceptance (rca_contract_audit); the latter reported no critical
+blockers. The owner reviewed final repairs and reran the core checks.
 
-Review baseline is repository HEAD
-`fd49fbc98fc96b89552e2e7df95e74fac024a220` as inspected at initial continuation,
-plus the explicit absence of the new library and existing uncommitted work.
-Concurrent commits may advance HEAD; review task-owned current files directly
-and record hashes rather than treating unrelated branch changes as this task.
+## Findings resolved
 
-Standards: `CONTEXT.md`, `.specify/memory/constitution.md`, ADRs 0002, 0006,
-0007, 0010, 0011, 0015 and 0016. Requirements: this feature's specification,
-contract, acceptance matrix and the user's full domain-library objective.
+- Preserve explanation and fill missing legal fields in degraded draft answers.
+- Reject unsupported completion and blocked assessments claiming sufficiency.
+- Check observation key/identity and deployment consistency.
+- Preserve both original and incoming conflicting observations; conflicted support
+  cannot establish completion. Match optional scope-window presence and values.
+- Resolve producer aliases in retained definitions.
+- Remove placeholder/dead code and implementation-mirroring identity assertions.
+- Ground the scripted demo explanation in authored queue saturation observations.
 
-## Executed baseline checks — 2026-09-17
+## Verification
 
-- `python3 -m pytest tests -q`: 41 passed, 12 subtests passed.
-- `python3 -m pytest experiments/semantic_encoding_v1/test_s01.py experiments/semantic_encoding_v1/test_s02_s09.py experiments/semantic_encoding_v1/test_p01.py -q`: 28 passed, 3 subtests passed.
-- Feature document relative links resolve.
-- `git diff --check` for the task's documentation found no whitespace issues.
-- Checkpoint `b888d82` contains only nine task-owned ADR/research/specification
-  documents; other agents' staged files were excluded using explicit commit paths.
+`PYTHONPATH=libraries/rca_domain/src:libraries/trace_semantics/src python3 -m pytest libraries/rca_domain/tests -q`
 
-These results establish pre-implementation baselines only. They do not prove
-that semantic traces can reach an investigation loop; that code does not yet exist.
+Result: **9 passed**. Core coverage includes preserved evidence/unknowns, invalid
+input, follow-up and reassessment, rejected unsupported completion, budget/provider
+fallback and conflict preservation.
 
-## Pending review gates
+`PYTHONPATH=libraries/rca_domain/src:libraries/trace_semantics/src python3 -m rca_domain.demo`
 
-- Public seam confirmation, followed by recorded Luna extra-high red/green slices.
-- Independent standards and specification reviews covering every task code file.
-- Current source/test/example/packaging inventory and hashes.
-- Reproduction and repair of actionable findings.
-- Requirement-by-requirement audit, standalone installation and complete trace-to-loop example.
+Result: worker-1 / resource saturation, evidence_sufficient, completed, supported;
+2 assessments and 1 operation. This uses the actual semantic producer with an
+explicitly synthetic scripted assessor, not a real diagnosis accuracy evaluation.
 
-## Parallel planning audits
+## Remaining limits
 
-Luna extra-high `rca_contract_audit` inspected actual S01, P01 and S02–S09 producers.
-It recommends S01 plus provenance sidecar as the first compatibility input, an
-explicit native envelope for general evidence, and rejection of unversioned
-positional P01 payloads. No producer experiment is promoted to a causal contract.
+Operation callbacks are trusted injected code expected to return packets created
+by from_semantic_traces; exhaustive adversarial packet/definition validation is
+not established. Attempts are bounded, but callbacks cannot be forcibly stopped.
+Hard time/cost limits, advanced retries, S01 compatibility, exhaustive projections,
+full L01–L18 coverage, independent package installation and runner persistence
+are deferred. These do not block the qualified demo handoff.
 
-Luna extra-high `loop_plan_review` identified eight implementation prerequisites:
-callback timeout enforcement, legal-answer inputs, structural versus semantic
-gate responsibilities, immutable revision semantics, runner/package ownership,
-input schemas, retry/reserve accounting, and terminal-event precedence.
-[The API design](contracts/domain-api.md) now records decisions for those areas.
-These are planning dispositions, not verified code fixes. Exact serialized native
-examples/value signatures remain in T04 and all implementation tests are pending.
+Earlier pre-implementation baselines were 41 repository tests / 12 subtests and
+28 producer experiment tests / 3 subtests. They are not current full-regression
+claims. Only the task-owned core suite was rerun for this isolated demo delivery.

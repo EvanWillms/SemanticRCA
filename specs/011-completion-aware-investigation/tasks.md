@@ -1,18 +1,22 @@
 # Implementation tasks
 
-Full objective: deliver the RCA domain library from semantic encoded traces
-through the agentic investigation loop, using Luna extra-high TDD workers, and
-review all code produced in this task. Documents alone do not complete it.
+The latest user instruction narrows this checkpoint to a working minimal demo
+with core TDD. See [demo scope](demo-scope.md); no full-feature acceptance claim.
 
-- [x] T01 Inspect current worktree, semantic producers, domain vocabulary and loop requirements.
-- [x] T02 Record implementation ownership and baseline repository regressions (41 passed, 12 subtests, 2026-09-17).
-- [ ] T03 Confirm the two proposed public test seams with the user under the TDD skill.
-- [ ] T04 Freeze public value types and actual supported producer adapter schemas.
-- [ ] T05 [P] Luna xhigh TDD: evidence-preserving semantic trace ingestion at the confirmed boundary.
-- [ ] T06 [P] Luna xhigh TDD: completion-aware bounded investigation at the confirmed boundary.
-- [ ] T07 Luna xhigh TDD: end-to-end encoded trace integration and best-guess finalization.
-- [ ] T08 Package and document standalone installation and a runnable encoded-trace example.
-- [ ] T09 Run independent parallel standards/spec reviews over every task-owned code file.
-- [ ] T10 Repair actionable review findings with public-boundary red/green evidence.
-- [ ] T11 Verify L01–L18, independent installation, example and repository/producer regressions.
-- [ ] T12 Reconcile requirements against current source/test/review evidence and complete the full goal only when proven.
+- [x] Inspect producers, domain vocabulary and ownership; record baseline checks.
+- [x] Freeze native trace-description-v1 ingestion and investigate public boundaries.
+- [x] Luna xhigh TDD: evidence-preserving ingestion and invalid-input rejection.
+- [x] Luna xhigh TDD: follow-up, reassessment, completion gating and bounded fallback.
+- [x] Luna xhigh TDD: actual producer-to-loop synthetic demonstration.
+- [x] Document source-checkout execution and add standalone packaging metadata.
+- [x] Review all delivered code, tests, demo and packaging; parallel standards/spec audits.
+- [x] Repair core findings and verify 9 tests plus the CLI happy path.
+- [x] Record reviewed file hashes and demo-ready owning-task handoff.
+
+## Deferred broader acceptance
+
+- [ ] S01 compatibility and exhaustive scope/projection fixtures.
+- [ ] Hard callback cancellation, time/cost enforcement and advanced retry policies.
+- [ ] Full L01–L18 requirement audit and acceptance coverage.
+- [ ] Independent wheel/install validation and broader regression run.
+- [ ] Runtime persistence/provider integration (integration owner) and held-out evaluation.

@@ -1,6 +1,6 @@
 # RCA domain API design
 
-Status: proposed public seams awaiting confirmation; technical decisions for
+Status: public seams follow the user-defined input/output objective; technical decisions for
 implementation, not existing code. This refines [investigation.md](investigation.md).
 
 ## Public calls and ownership
@@ -22,7 +22,9 @@ window; retaining their context is not a claim that every span occurred inside i
 
 ## Supported semantic inputs
 
-Two explicit envelopes are planned; the adapter never guesses positional fields:
+Two explicit envelopes are planned; the adapter never guesses positional fields.
+The primary input is the actual standalone producer's `trace-description-v1`
+output. The domain package accepts serialized data without importing the producer:
 
 1. `format = s01-normalized-v1`: the actual S01 packet plus its provenance
    sidecar. Validate matching source digests, codebook/policy version identities,
@@ -30,18 +32,33 @@ Two explicit envelopes are planned; the adapter never guesses positional fields:
    node's evidence pointer. Resolve symbols from the supplied codebook. Raw row
    digests may be checked against reconstructed raw records; this does not verify
    a source file the library has not read.
-2. `format = rca-semantic-v1`: a standalone semantic envelope for future producers,
-   with explicit packet/deployment/trace identity, versioned operation definitions,
-   timing-unit declarations, coverage, unknowns and observations. Each observation
-   carries evidence ID, span ID, raw parent reference, recording component,
-   operation symbol (or explicit unknown), raw operation/type/status/timing values,
-   and a source pointer containing snapshot identity, record locator and optional
-   content digest. Definitions and raw values are retained, not replaced by symbols.
+2. `format = trace-description-v1`: an envelope with caller-supplied packet identity
+   and a producer description with matching `schema_version`. Require `policy`,
+   `meaning_dictionary`, `traces`, `deferred` and `counts`. Policy `version` agrees
+   with the dictionary, and `operation_mappings` supplies exact raw-name meanings.
+   Each trace retains deployment/trace identity, `raw`, `coverage`, physical
+   `evidence`, logical `nodes`, `edges` and `counts`. Evidence retains producer
+   `evidence_id`, raw row, locator and record. Nodes reference that evidence through
+   `occurrences`, with explicit conflict/count information. Preserve all top-level
+   and trace-local deferred facets, their evidence references and original raw data.
 
 The exact native serialized example is a T04 artifact to publish before T05.
 Native observations can retain missing/ambiguous/cyclic ancestry as qualifications;
 unsupported topology must not become a resolved edge. S01 remains a restricted
 compatibility adapter, not the definition of general supported evidence.
+
+The earlier proposed `rca-semantic-v1` input is replaced by this actual producer
+schema; do not implement the redundant producer format. Producer `coverage`
+currently counts records, occurrences and conflicts; retrieval qualifications
+such as `recorded_recovery` may instead live in retained trace `raw`. Preserve
+both and never interpret counts as complete retrieval or instrumentation.
+Deferred items may lack deployment; resolve them through scoped evidence
+references and retain ambiguous association as a qualification.
+
+Validate semantic meaning against policy, occurrence membership against raw
+evidence and edge endpoints against scoped nodes. Keep arbitrary finite-JSON
+locators as opaque provenance, separately qualifying missing snapshot or physical
+record identity. A locator or digest-looking string does not verify a source file.
 
 P01 and S02–S09 are not implicitly accepted. Their future adapters need separately
 versioned schemas and provenance contracts. This excludes unversioned payloads,

@@ -1,6 +1,11 @@
 # Implementation plan: semantic traces into RCA investigation
 
-Status: technical decisions recorded; public TDD seams awaiting user confirmation.
+The user's demo-first instruction is governed by [demo-scope.md](demo-scope.md).
+It stages this full plan: the first checkpoint uses native trace descriptions,
+detached dictionaries, in-process callbacks and core public-boundary tests.
+Hard timeout/cost enforcement and the full acceptance matrix remain later work.
+
+Status: technical decisions recorded; implementation proceeding at the user-defined semantic-input and investigation-loop boundaries.
 
 ## Objective and ownership
 
@@ -11,15 +16,17 @@ semantic-packet → evidence → assessment → bounded operation → reassessme
 result flow, not just define value objects or reimplement a trace encoder.
 
 Use `libraries/rca_domain`, Python standard-library runtime dependencies and an
-independent test suite. Do not modify `libraries/trace_semantics`, which currently
-contains a producer scaffold, or assume that producer is implemented. Do not
+independent test suite. Do not modify `libraries/trace_semantics`, which now
+contains a concurrently developed producer; inspect its serialized contract
+without claiming that its acceptance is complete. Do not
 change the submitted runner's default agent. Provider clients and telemetry
 operations are injected boundaries; no paid model calls are needed for acceptance.
 
 ## Proposed public boundaries
 
-The TDD skill requires confirmation before tests are written. Confirmation has
-been requested for these two boundaries:
+The user's objective defines semantic trace input and the agentic loop as the
+public behavior boundaries. The earlier extra confirmation request was unnecessary;
+the following function names are implementation choices within that authorization:
 
 1. `from_semantic_traces(...)`: translate supplied versioned semantic packets,
    definition/provenance information and case scope into an evidence packet.
@@ -33,7 +40,8 @@ raw files, labels or a remote provider implicitly.
 
 ## Evidence handoff
 
-Inspect actual producer formats before choosing adapters. Existing inputs include
+The primary input is the standalone producer's actual `trace-description-v1`
+output, supplied as serialized data with explicit packet identity. Compatibility inputs include
 S01's `s01-normalized-v1` packets with operation dictionaries and evidence IDs,
 and P01's symbolic/normalized request payloads with packet-local evidence IDs.
 P01 payloads do not carry a standalone schema/codebook identity; their adapter

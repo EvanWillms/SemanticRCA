@@ -6,7 +6,7 @@ Task ID: `01a0b128-5479-7042-9de2-80514655a78a`.
 
 ## Owned paths
 
-- `libraries/rca_domain/` — planned standalone library, its tests, examples and packaging.
+- `libraries/rca_domain/` — standalone library, its tests, examples and packaging.
 - `specs/011-completion-aware-investigation/`.
 - `docs/adr/0016-completion-aware-investigation.md`.
 - `docs/research/minimal-agent-loop.v1.md` and `minimal-agent-loop-sources.v1.md`.
@@ -14,12 +14,13 @@ Task ID: `01a0b128-5479-7042-9de2-80514655a78a`.
 
 ## Public interface
 
-Proposed: `from_semantic_traces(envelopes, scope) -> EvidencePacket`, followed by
+Available for the minimal demo: `from_semantic_traces(envelopes, scope) -> EvidencePacket`, followed by
 `investigate(evidence, assessor, operations, answer_policy, work_policy) -> InvestigationResult`.
 Input is serialized `trace-description-v1` data with packet/source identity;
 S01 packet-plus-sidecar compatibility is also planned. Output retains evidence,
 qualifications, incident selections, audit history, usage and separate stop reason,
-execution status and evidence adequacy. These interfaces are not implemented yet.
+execution status and evidence adequacy. Native producer input is implemented;
+S01 compatibility remains deferred. See the library README for runnable callbacks.
 
 ## Dependencies and exclusions
 
