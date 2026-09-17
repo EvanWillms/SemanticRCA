@@ -31,6 +31,7 @@ UTC_PLUS_8 = timezone(timedelta(hours=8), name="UTC+08:00")
 CASE_SECONDS = 55.0
 DISCOVERY_SECONDS = 30.0
 MAX_FACTS_CHARS = 20_000
+UNKNOWN = "I don't know"
 
 NODE_REASONS = {
     "cpu": "node CPU load",
@@ -72,30 +73,6 @@ def _component(resource: Any, family: Any = "") -> str:
     if str(family) == "metric_container" and "." in value:
         return value.split(".", 1)[1]
     return value
-
-
-def _reason_for(kpi: Any, component: str) -> str:
-    key = str(kpi or "").lower()
-    table = NODE_REASONS if component.startswith("node-") else POD_REASONS
-    if any(token in key for token in ("disk_read", "read_bytes", "diskio_read", "read_io")):
-        return table.get("read", next(iter(table.values())))
-    if any(token in key for token in ("disk_write", "write_bytes", "diskio_write", "write_io")):
-        return table.get("write", next(iter(table.values())))
-    if any(token in key for token in ("disk_space", "fs_usage", "disk_usage", "filesystem")):
-        return table.get("space", next(iter(table.values())))
-    if any(token in key for token in ("memory", "mem_", "pgfault")):
-        return table.get("memory", next(iter(table.values())))
-    if "cpu" in key:
-        return table.get("cpu", next(iter(table.values())))
-    if "packet_loss" in key or "drop" in key:
-        return table.get("loss", table.get("latency", next(iter(table.values()))))
-    if "retrans" in key:
-        return table.get("retrans", table.get("latency", next(iter(table.values()))))
-    if "corrupt" in key:
-        return table.get("corrupt", table.get("latency", next(iter(table.values()))))
-    if any(token in key for token in ("latency", "rtt", "delay", "network", "net_", "tcp", "rx", "tx", "receive", "transmit")):
-        return table.get("latency", next(iter(table.values())))
-    return next(iter(table.values()))
 
 
 def _datetime(value: Any, *, milliseconds: bool = False) -> str | None:
@@ -177,13 +154,15 @@ def _candidate_records(sidecar: Mapping[str, Any]) -> list[dict[str, Any]]:
     # Keep one strongest observation per component before filling the packet;
     # repeated samples otherwise crowd out independent alternatives.
     selected: list[dict[str, Any]] = []
+    repeated: list[dict[str, Any]] = []
     seen: set[str] = set()
     for record in records:
         if record["component"] not in seen:
             selected.append(record)
             seen.add(record["component"])
-        elif len(selected) < 24:
-            selected.append(record)
+        else:
+            repeated.append(record)
+    selected.extend(repeated[:max(0, 24 - len(selected))])
     return selected[:24]
 
 
@@ -237,15 +216,17 @@ def _extract_section(text: str, heading: str, next_heading: str | None = None) -
 
 
 def _format_prediction(answers: Sequence[Mapping[str, Any]], fields: Sequence[str]) -> str:
+    labels = {
+        "datetime": "root cause occurrence datetime",
+        "component": "root cause component",
+        "reason": "root cause reason",
+    }
     output: dict[str, dict[str, str]] = {}
     for index, answer in enumerate(answers, 1):
         item: dict[str, str] = {}
-        if "datetime" in fields and answer.get("datetime"):
-            item["root cause occurrence datetime"] = str(answer["datetime"])
-        if "component" in fields and answer.get("component"):
-            item["root cause component"] = str(answer["component"])
-        if "reason" in fields and answer.get("reason"):
-            item["root cause reason"] = str(answer["reason"])
+        for field in fields:
+            value = answer.get(field) or UNKNOWN
+            item[labels[field]] = str(value)
         output[str(index)] = item
     return json.dumps(output, ensure_ascii=False)
 
@@ -271,6 +252,7 @@ def solve(instruction: str, dataset_dir: Path, ctx: dict[str, Any]) -> Solution:
     # Give the existing discovery seam a copied context with a short local
     # budget.  This leaves the runner's context and immutable solution intact.
     bounded = dict(ctx)
+    bounded['submission_metrics'] = True
     bounded["budget"] = CaseBudget(min(deadline, started + DISCOVERY_SECONDS), time.monotonic)
     base = discovery_agent.solve(instruction, dataset_dir, bounded)
     if not isinstance(base, Solution):
@@ -287,10 +269,10 @@ def solve(instruction: str, dataset_dir: Path, ctx: dict[str, Any]) -> Solution:
     count = max(1, int(scope.get("failure_count") or 1))
     records = _candidate_records(sidecar if isinstance(sidecar, Mapping) else {})
     resources = _resources(sidecar if isinstance(sidecar, Mapping) else {})
+    records_available = bool(records)
     if not records:
         # Inventory is still useful when every comparison was unavailable.  It
-        # supplies identities for a deterministic best guess, without inventing
-        # an observed anomaly.
+        # supplies identities for the packet, without establishing an answer.
         records = [{
             "component": item["component"], "resource": item["component"],
             "family": item["family"], "kpi": "", "datetime": _scope_start(scope),
@@ -300,30 +282,32 @@ def solve(instruction: str, dataset_dir: Path, ctx: dict[str, Any]) -> Solution:
     if not records:
         records = [{"component": "unknown", "family": "", "kpi": "", "datetime": _scope_start(scope), "value": None, "reference": None, "difference": None, "locator": {}}]
     fact_text, public = _facts(records, resources)
-    fallback: list[dict[str, str]] = []
-    for index in range(count):
-        item = records[index % len(records)]
-        fallback.append({
-            "datetime": item.get("datetime") or _scope_start(scope),
-            "component": str(item.get("component") or "unknown"),
-            "reason": _reason_for(item.get("kpi"), str(item.get("component") or "")),
-        })
 
     client = ModelClient(deadline=deadline, timeout=min(8.0, max(0.1, deadline - time.monotonic())))
     notes: list[str] = []
     triage: dict[str, Any] = {}
     decision: dict[str, Any] = {}
+    strong_unavailable = False
     try:
         triage = _json_object(client.ask(
             CHEAP_MODELS,
             "Rank the candidate_id values for the stated root-cause question. "
             "Use only the supplied packet and reply JSON only as {\"candidate_ids\":[1,2]}.\n\n"
             + fact_text,
-            max_tokens=300,
+            max_tokens=2048,
         ))
     except AllModelsUnavailable:
-        notes.append("Cheap triage was unavailable; deterministic candidate order was retained.")
-    selected_ids = [int(value) for value in triage.get("candidate_ids", ()) if isinstance(value, (int, float)) and 1 <= int(value) <= len(public)]
+        notes.append("Cheap triage was unavailable; no triage ranking was available.")
+    triage_ids = triage.get("candidate_ids")
+    selected_ids = [
+        value for value in (triage_ids if isinstance(triage_ids, list) else [])
+        if isinstance(value, int) and not isinstance(value, bool) and 1 <= value <= len(public)
+    ]
+    triage_hint = (
+        "An inexpensive triage pass ranked these candidate IDs as an advisory hint: "
+        + json.dumps(selected_ids) + ". Validate every field against the selected recorded candidate.\n\n"
+        if selected_ids else ""
+    )
     try:
         decision = _json_object(client.ask(
             STRONG_MODELS,
@@ -332,64 +316,88 @@ def solve(instruction: str, dataset_dir: Path, ctx: dict[str, Any]) -> Solution:
             '{"answers":[{"candidate_id":1,"component":"...","reason":"...","datetime":"YYYY-MM-DD HH:MM:SS"}],'
             '"confidence":"low|medium|high","why":"qualified hypothesis"}. '
             "Use an exact legal reason for that component level and never invent a component, reason, or time.\n\n"
-            + fact_text,
-            max_tokens=700,
+            + triage_hint + fact_text,
+            max_tokens=2048,
         ))
     except AllModelsUnavailable:
-        notes.append("Strong diagnosis models were unavailable; the recorded candidate with the largest departure was retained.")
+        strong_unavailable = True
+        notes.append("Strong diagnosis models were unavailable; requested fields are unknown.")
 
     legal_components = {str(item.get("component")) for item in records}
-    legal_components.update(str(item.get("component")) for item in resources)
     allowed_times = {str(item.get("datetime")) for item in records if item.get("datetime")}
-    allowed_times.add(_scope_start(scope))
-    model_answers = decision.get("answers") if isinstance(decision.get("answers"), Sequence) else ()
+    model_answers = decision.get("answers") if isinstance(decision.get("answers"), Sequence) and not isinstance(decision.get("answers"), (str, bytes)) else ()
+    if not records_available:
+        notes.append("No recorded candidate supported a root-cause answer; requested fields are unknown.")
+    elif not model_answers and not strong_unavailable:
+        notes.append("The diagnosis response was missing or malformed; requested fields are unknown.")
     answers: list[dict[str, str]] = []
     for index in range(count):
         proposed = model_answers[index] if index < len(model_answers) and isinstance(model_answers[index], Mapping) else {}
+        if not records_available or strong_unavailable or not proposed:
+            answers.append({field: UNKNOWN for field in fields})
+            continue
         candidate_id = proposed.get("candidate_id")
         chosen = None
-        if isinstance(candidate_id, (int, float)) and 1 <= int(candidate_id) <= len(records):
+        if (isinstance(candidate_id, int) and not isinstance(candidate_id, bool)
+                and 1 <= candidate_id <= len(records)):
             chosen = records[int(candidate_id) - 1]
-        if chosen is None:
+        elif not candidate_id and str(proposed.get("component") or "") in legal_components:
             component = str(proposed.get("component") or "")
             chosen = next((item for item in records if item.get("component") == component), None)
         if chosen is None:
-            chosen = records[index % len(records)]
-        component = str(chosen.get("component") or "unknown")
-        if str(proposed.get("component") or "") in legal_components:
-            component = str(proposed["component"])
-        table = NODE_REASONS if component.startswith("node-") else POD_REASONS
+            answers.append({field: UNKNOWN for field in fields})
+            continue
+        recorded_component = str(chosen.get("component") or "")
+        proposed_component = str(proposed.get("component") or "")
+        component = proposed_component if (proposed_component == recorded_component
+            and re.fullmatch(r"[A-Za-z0-9_-]+", recorded_component)) else UNKNOWN
+        table = NODE_REASONS if recorded_component.startswith("node-") else POD_REASONS
         reason = str(proposed.get("reason") or "")
-        if reason not in table.values():
-            reason = _reason_for(chosen.get("kpi"), component)
+        if component == UNKNOWN or reason not in table.values():
+            reason = UNKNOWN
         when = _datetime(proposed.get("datetime"))
-        if when not in allowed_times:
-            when = str(chosen.get("datetime") or _scope_start(scope))
+        if when not in allowed_times or when != str(chosen.get("datetime") or ""):
+            when = UNKNOWN
         answers.append({"datetime": when, "component": component, "reason": reason})
 
-    answers.sort(key=lambda item: item["datetime"])
+    answers.sort(key=lambda item: item.get("datetime", ""))
+    answer_is_unknown = any(value == UNKNOWN for answer in answers for value in answer.values())
     confidence = str(decision.get("confidence") or "low").lower()
     if confidence not in {"low", "medium", "high"}:
         confidence = "low"
-    rationale = re.sub(r"\s+", " ", str(decision.get("why") or "No model rationale was available.")).strip()[:900]
+    rationale = re.sub(r"\s+", " ", str(decision.get("why") or "No validated model rationale was available.")).strip()[:900]
+    if answer_is_unknown:
+        rationale = "No validated model answer was available; requested fields are unknown."
+        confidence = "low"
     answer_lines = "\n".join(
-        f"{index}. {item.get('component', '')} / {item.get('reason', '')} / {item.get('datetime', '')}"
+        f"{index}. {item.get('component') or UNKNOWN} / "
+        f"{item.get('reason') or UNKNOWN} / "
+        f"{item.get('datetime') or UNKNOWN}"
         for index, item in enumerate(answers, 1)
     )
     raw_evidence = _extract_section(base.evidence, "## Evidence", "## Ruled out")
     if not raw_evidence:
         raw_evidence = "Discovery returned source-linked candidate observations; see the persisted findings sidecar."
-    alternatives = ", ".join(dict.fromkeys(str(item.get("component")) for item in records if item.get("component") not in {answer["component"] for answer in answers}))
+    answer_components = {str(answer.get("component")) for answer in answers}
+    alternatives = ", ".join(dict.fromkeys(
+        str(item.get("component")) for item in records
+        if item.get("component") and str(item.get("component")) != "unknown"
+        and str(item.get("component")) not in answer_components
+    ))
     ruled_out = (f"No causal alternative was validated. Other observed candidates: {alternatives}."
                  if alternatives else "No causal alternative was validated from the available observations.")
     if notes:
         notes_text = " " + " ".join(notes)
     else:
         notes_text = ""
+    confidence_text = (
+        "Low. No validated model answer was available; requested fields are unknown."
+        if answer_is_unknown else
+        confidence.capitalize() + ". Qualified model hypothesis (not a validated fact): " + rationale
+    )
     evidence = (
         "## Answer\n" + answer_lines + "\n\n"
-        "## Confidence\n" + confidence.capitalize() + ". Qualified model hypothesis (not a validated fact): "
-        + rationale + notes_text + "\n\n"
+        "## Confidence\n" + confidence_text + notes_text + "\n\n"
         "## Evidence\n" + raw_evidence + "\n\n"
         "## Ruled out\n" + ruled_out + "\n"
     )
