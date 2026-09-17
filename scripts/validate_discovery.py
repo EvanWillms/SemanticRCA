@@ -35,6 +35,18 @@ def validate(queries, out, capability):
     run = read_json(out / 'discovery-run.json')
     require([case['row_id'] for case in run['cases']] == ids, 'run row association mismatch')
     require(run['total_cases'] == len(ids) and run['published_cases'] == len(ids), 'run case count mismatch')
+    preparations = run['preparations']
+    preparation_ids = {item['id'] for item in preparations}
+    require(len(preparation_ids) == len(preparations), 'duplicate preparation identity')
+    for item in preparations:
+        require(math.isfinite(item['wall_s']) and item['wall_s'] >= 0, 'invalid preparation duration')
+        if item['status'] == 'completed' and item['index_path'] is not None:
+            relative = Path(item['index_path'])
+            require(not relative.is_absolute(), 'prepared view path is not relative')
+            (out / relative).resolve().relative_to(out.resolve())
+            require((out / relative).is_file(), 'missing declared prepared view')
+    require(math.isclose(run['shared_preparation_wall_s'], sum(item['wall_s'] for item in preparations)),
+            'shared preparation accounting mismatch')
     for row, identity, record, case in zip(rows, ids, usage, run['cases']):
         directory = out / 'cases' / str(identity)
         interpretation = read_json(directory / 'scope.json')
@@ -63,6 +75,9 @@ def validate(queries, out, capability):
             require(interpretation['status'] == 'unsupported' and scope is None and interpretation['errors'], 'invalid unsupported scope')
         require(findings['status'] in ('completed', 'partial', 'unavailable', 'not_run'), 'invalid discovery status')
         require(case['discovery_status'] == findings['status'], 'run/case status mismatch')
+        require(case.get('preparation_id') == findings.get('preparation_id'), 'case preparation mismatch')
+        if findings.get('preparation_id') is not None:
+            require(findings['preparation_id'] in preparation_ids, 'unknown preparation identity')
         if capability == 'discovery':
             require(findings['status'] == 'completed' and interpretation['status'] == 'interpreted', 'discovery is incomplete')
         for line in (directory / 'operations.jsonl').read_text().splitlines():

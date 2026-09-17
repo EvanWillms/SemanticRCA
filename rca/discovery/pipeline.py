@@ -12,19 +12,20 @@ from rca.discovery.budget import CaseBudget, BudgetExceeded, RunBudget
 from rca.telemetry.inventory import inventory
 from rca.telemetry.logs import inspect_logs
 from rca.telemetry.traces import recover_traces, compare_traces
+from rca.telemetry.trace_index import TraceIndexBudgetExceeded
 
 
 POLICY_ID = 'track1-discovery-v1'
 
 
 def discover(dataset: Path, scope: dict[str, Any], row_id: int,
-             budget: CaseBudget | None = None) -> dict[str, Any]:
+             budget: CaseBudget | None = None, run_context=None) -> dict[str, Any]:
     operations = []
     budget = budget or RunBudget().allocate(1)
     try:
-        return _discover(dataset, scope, row_id, budget, operations)
-    except (BudgetExceeded, OSError, ValueError) as exc:
-        reason = 'analysis_time_budget_exhausted' if isinstance(exc, BudgetExceeded) else 'operation_failed'
+        return _discover(dataset, scope, row_id, budget, operations, run_context)
+    except (BudgetExceeded, TraceIndexBudgetExceeded, OSError, ValueError) as exc:
+        reason = 'analysis_time_budget_exhausted' if isinstance(exc, (BudgetExceeded, TraceIndexBudgetExceeded)) else 'operation_failed'
         return {'findings': {'schema_version': 'discovery-v1', 'row_id': row_id,
                             'status': 'partial', 'stop_reason': reason, 'candidates': [],
                             'findings': [], 'logs': [], 'coverage': {'telemetry': 'partial'},
@@ -32,7 +33,7 @@ def discover(dataset: Path, scope: dict[str, Any], row_id: int,
                 'operations': operations}
 
 
-def _discover(dataset, scope, row_id, budget, operations):
+def _discover(dataset, scope, row_id, budget, operations, run_context):
     source_id = None
     start = datetime.fromisoformat(scope['window_start']).timestamp()
     end = datetime.fromisoformat(scope['window_end']).timestamp()
@@ -54,19 +55,28 @@ def _discover(dataset, scope, row_id, budget, operations):
                            withheld_count=result.get('withheld_count', 0),
                            stop_reason=result.get('stop_reason'))
             return result
-        except BudgetExceeded:
+        except (BudgetExceeded, TraceIndexBudgetExceeded):
             receipt.update(status='budget_exhausted', stop_reason='analysis_time_budget_exhausted')
             raise
         finally:
             receipt['wall_s'] = time.monotonic() - begun
 
+    preparation = None
+    if run_context is not None:
+        preparation = perform('prepare_sources', 'Which completed source view can this case use?',
+                              {'deployment': scope['deployment']},
+                              lambda: run_context.prepare(scope['deployment'], budget))
+        operations[-1]['preparation_id'] = preparation['preparation_id']
+        operations[-1]['reused'] = preparation['reused']
     snapshot = perform('inventory', 'Which supported sources and identities are supplied?',
-                       {'deployment': scope['deployment']}, lambda: inventory(dataset, scope['deployment'], check_budget=budget.check))
+                       {'deployment': scope['deployment']}, lambda: preparation['snapshot'] if preparation else
+                       inventory(dataset, scope['deployment'], check_budget=budget.check))
     source_id = hashlib.sha256(json.dumps(
         {'deployment': scope['deployment'], 'schema_version': snapshot['schema_version'],
          'sources': [(source['path'], source['sha256']) for source in snapshot['sources']]},
         sort_keys=True).encode()).hexdigest()
-    operations[0]['source_id'] = source_id
+    for operation in operations:
+        operation['source_id'] = source_id
     coverage = {family: {'status': 'not_inspected' if summary['status'] == 'available' else 'unavailable',
                          'reason': 'pending_operation' if summary['status'] == 'available' else summary.get('reason')}
                 for family, summary in snapshot['source_families'].items()}
@@ -74,6 +84,8 @@ def _discover(dataset, scope, row_id, budget, operations):
             'source_id': source_id, 'source_snapshot': snapshot, 'coverage': coverage,
             'candidates': [], 'findings': [], 'logs': [], 'relationships': [],
             'qualifications': ['Discovery describes observations and does not establish root cause.']}
+    if preparation:
+        base.update(preparation_id=preparation['preparation_id'], preparation_reused=preparation['reused'])
     if not snapshot['sources']:
         return {'findings': {**base, 'status': 'unavailable', 'stop_reason': 'missing_telemetry_sources'},
                 'operations': operations}
@@ -81,7 +93,8 @@ def _discover(dataset, scope, row_id, budget, operations):
     trace_result = perform('recover_traces', 'Which frontend-root traces start in the query or reference window?',
                            {'start': start - 300, 'end': end, 'limit': 30, 'frontend_only': True},
                            lambda: recover_traces(dataset, snapshot, start - 300, end,
-                                                  check_budget=budget.check, frontend_only=True))
+                                                  check_budget=budget.check, frontend_only=True,
+                                                  prepared_view=preparation['view'] if preparation else None))
     trace_comparison = perform('compare', 'How do query durations and structures differ from prior observations?',
                                {'channel': 'trace', 'reference_seconds': 300},
                                lambda: compare_traces(trace_result, start, end))

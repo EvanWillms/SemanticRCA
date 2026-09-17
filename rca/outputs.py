@@ -71,7 +71,8 @@ class OutputWriter:
             finally:
                 temporary.unlink(missing_ok=True)
 
-    def write_discovery_run(self, capability: str, wall_s: float, total_cases: int) -> None:
+    def write_discovery_run(self, capability: str, wall_s: float, total_cases: int,
+                            preparation: Mapping[str, Any] | None = None) -> None:
         """Publish the status of durable cases, including an empty inventory."""
         (self.out_dir / "cases").mkdir(exist_ok=True)
         self._write_json(self.out_dir / "discovery-run.json", {
@@ -79,6 +80,7 @@ class OutputWriter:
             "capability": capability, "cases": self._discovery_cases,
             "total_cases": total_cases, "published_cases": len(self._discovery_cases),
             "wall_s": wall_s, "shared_preparation_wall_s": 0.0,
+            **(preparation or {}),
             "status": "completed" if len(self._discovery_cases) == total_cases and all(
                 case["discovery_status"] == "completed" for case in self._discovery_cases) else "incomplete",
         })
@@ -202,4 +204,5 @@ class OutputWriter:
                 "interpretation_status": solution.discovery["interpretation"]["status"],
                 "discovery_status": solution.discovery["findings"]["status"],
                 "stop_reason": solution.discovery["findings"]["stop_reason"],
+                "preparation_id": solution.discovery["findings"].get("preparation_id"),
             })

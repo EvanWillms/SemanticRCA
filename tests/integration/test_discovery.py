@@ -36,7 +36,8 @@ class DiscoveryCLITests(unittest.TestCase):
             findings = json.loads((output / 'cases/42/findings.json').read_text())
             self.assertEqual(findings['status'], 'unavailable')
             self.assertEqual(findings['stop_reason'], 'missing_telemetry_sources')
-            self.assertEqual(json.loads((output / 'cases/42/operations.jsonl').read_text())['operation'], 'inventory')
+            operations = [json.loads(line) for line in (output / 'cases/42/operations.jsonl').read_text().splitlines()]
+            self.assertEqual([item['operation'] for item in operations], ['prepare_sources', 'inventory'])
             with (output / 'predictions.csv').open() as handle:
                 self.assertEqual(list(csv.DictReader(handle)), [{'row_id': '42', 'prediction': ''}])
             self.assertEqual(json.loads((output / 'usage.jsonl').read_text())['calls'], 0)
@@ -82,6 +83,8 @@ class DiscoveryCLITests(unittest.TestCase):
                 writer = csv.writer(handle); writer.writerow(['row_id', 'instruction'])
                 writer.writerow([9, 'The system cloudbed-8 experienced one failure on June 15, 2025, '
                                     'from 09:00 to 09:30. Please identify the root cause component.'])
+                writer.writerow([10, 'The system cloudbed-8 experienced two failures on June 15, 2025, '
+                                     'from 09:00 to 09:30. Please identify the root cause reason.'])
             out = root / 'out'
             run = subprocess.run([sys.executable, 'run.py', '--dataset', str(dataset),
                                   '--queries', str(queries), '--out', str(out), '--agent', 'agents.discovery'],
@@ -89,6 +92,19 @@ class DiscoveryCLITests(unittest.TestCase):
             self.assertEqual(run.returncode, 0, run.stderr)
             findings = json.loads((out / 'cases/9/findings.json').read_text())
             self.assertEqual(findings['status'], 'completed')
+            run_record = json.loads((out / 'discovery-run.json').read_text())
+            self.assertEqual(len(run_record['preparations']), 1)
+            preparation = run_record['preparations'][0]
+            self.assertEqual(preparation['status'], 'completed')
+            self.assertTrue((out / preparation['index_path']).is_file())
+            self.assertEqual(run_record['shared_preparation_wall_s'], preparation['wall_s'])
+            later = json.loads((out / 'cases/10/findings.json').read_text())
+            self.assertEqual(later['preparation_id'], findings['preparation_id'])
+            self.assertFalse(findings['preparation_reused'])
+            self.assertTrue(later['preparation_reused'])
+            later_scope = json.loads((out / 'cases/10/scope.json').read_text())['scope']
+            self.assertEqual(later_scope['failure_count'], 2)
+            self.assertEqual(later_scope['requested_fields'], ['reason'])
             self.assertEqual(findings['semantic_description']['schema_version'], 'trace-description-v1')
             self.assertEqual(len(findings['semantic_description']['traces']), 1)
             candidates = findings['candidates']

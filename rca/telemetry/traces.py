@@ -9,14 +9,92 @@ from typing import Any
 from .paths import source_path
 
 
+_TRACE_RAW_FIELDS = (
+    'timestamp', 'cmdb_id', 'span_id', 'trace_id', 'duration',
+    'type', 'status_code', 'operation_name', 'parent_span',
+)
+_FRONTEND_COMPONENT = re.compile(r'frontend(?:-\d+)?')
+
+
+def _prepared_span(row: dict[str, Any]) -> dict[str, Any]:
+    """Adapt one public prepared-view row to the legacy trace shape."""
+    raw = {field: row.get(field, '') for field in _TRACE_RAW_FIELDS}
+    location = {
+        'path': row.get('source_path', row.get('path', '')),
+        'source_digest': row.get('source_digest', row.get('sha256', '')),
+        'record': row.get('source_record', row.get('record', 0)),
+    }
+    return {'raw': raw, 'locator': location}
+
+
+def _recover_prepared(dataset_dir: Path, inventory: dict[str, Any], start: float,
+                      end: float, limit: int, check_budget: Any,
+                      prepared_view: Any) -> dict[str, Any]:
+    """Recover frontend-root traces through the prepared view boundary."""
+    if check_budget is not None:
+        check_budget()
+    sources = [source for source in inventory['sources']
+               if source['family'] == 'trace_span']
+    components = sorted({str(resource) for source in sources
+                         for resource in (source.get('resources') or ())
+                         if _FRONTEND_COMPONENT.fullmatch(str(resource))})
+    roots = prepared_view.roots(start * 1000, end * 1000, components)
+    if check_budget is not None:
+        check_budget()
+
+    selected: dict[str, float] = {}
+    for row in roots:
+        if check_budget is not None:
+            check_budget()
+        timestamp = float(row['timestamp']) / 1000
+        trace_id = str(row['trace_id'])
+        selected[trace_id] = min(timestamp, selected.get(trace_id, timestamp))
+    ordered = sorted(selected, key=lambda key: (selected[key], key))
+    kept = ordered[:limit]
+
+    if check_budget is not None:
+        check_budget()
+    indexed = prepared_view.traces(kept)
+    if check_budget is not None:
+        check_budget()
+    traces = {key: {'trace_id': key, 'deployment': inventory['deployment'], 'spans': []}
+              for key in kept}
+    retrieved = 0
+    for key in kept:
+        if check_budget is not None:
+            check_budget()
+        for row in indexed.get(key, ()):
+            if check_budget is not None:
+                check_budget()
+            traces[key]['spans'].append(_prepared_span(row))
+            retrieved += 1
+    for trace in traces.values():
+        trace['spans'].sort(key=lambda span: (float(span['raw']['timestamp']),
+                                              span['locator']['path'],
+                                              span['locator']['record']))
+        trace['recorded_recovery'] = 'complete_relative_to_snapshot'
+    return {'status': 'partial' if len(ordered) > limit else 'completed',
+            'traces': list(traces.values()), 'scanned_records': len(roots) + retrieved,
+            'retrieved_records': retrieved, 'selected_count': len(ordered),
+            'withheld_count': max(0, len(ordered) - limit),
+            'stop_reason': 'trace_response_limit' if len(ordered) > limit else None,
+            'qualifications': ['Recorded recovery does not establish complete instrumentation.',
+                               'Duration units remain provisional.'],
+            'retrieval_backend': 'prepared_sqlite'}
+
+
 def recover_traces(dataset_dir: Path, inventory: dict[str, Any], start: float,
                    end: float, limit: int = 30, check_budget=None,
-                   frontend_only: bool = False) -> dict[str, Any]:
+                   frontend_only: bool = False, prepared_view=None) -> dict[str, Any]:
     """Select by span start, then recover available records for selected IDs.
 
     Bounds are epoch seconds; Track 1 span starts are recorded in milliseconds.
     Selection and recovery are separate so unsorted partitions do not lose spans.
     """
+    if prepared_view is not None and frontend_only:
+        return _recover_prepared(dataset_dir, inventory, start, end, limit,
+                                  check_budget, prepared_view)
+
     sources = [source for source in inventory['sources'] if source['family'] == 'trace_span']
     selected: dict[str, float] = {}
     scanned = 0

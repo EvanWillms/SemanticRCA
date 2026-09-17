@@ -4,10 +4,45 @@ from pathlib import Path
 import tempfile
 import unittest
 
+from rca.telemetry.inventory import inventory
+from rca.telemetry.trace_index import prepare_sources
 from rca.telemetry.traces import recover_traces
 
 
 class TraceRecoveryTests(unittest.TestCase):
+    def test_prepared_recovery_matches_csv_recovery(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'telemetry' / 'p1' / 'trace' / 'trace_span.csv'
+            source.parent.mkdir(parents=True)
+            columns = ['timestamp', 'cmdb_id', 'span_id', 'trace_id', 'duration',
+                       'type', 'status_code', 'operation_name', 'parent_span']
+            with source.open('w', newline='') as handle:
+                writer = csv.writer(handle)
+                writer.writerow(columns)
+                writer.writerows([
+                    [1500, 'frontend-7', 'root', 'selected', 100, 'rpc', 0, 'GET /', ''],
+                    [2500, 'worker', 'child', 'selected', 20, 'rpc', 0, 'fetch', 'root'],
+                    [1500, 'worker', 'ignored', 'other', 1, 'rpc', 0, 'other', ''],
+                ])
+            source_inventory = inventory(root, 'demo')
+            prepared = prepare_sources(root, source_inventory, root.parent / 'out')
+
+            csv_result = recover_traces(root, source_inventory, 1, 2,
+                                        frontend_only=True)
+            indexed_result = recover_traces(root, source_inventory, 1, 2,
+                                            frontend_only=True,
+                                            prepared_view=prepared)
+
+            self.assertEqual(indexed_result['status'], csv_result['status'])
+            self.assertEqual(indexed_result['selected_count'], csv_result['selected_count'])
+            self.assertEqual(indexed_result['withheld_count'], csv_result['withheld_count'])
+            self.assertEqual(indexed_result['traces'], csv_result['traces'])
+            self.assertEqual(indexed_result['retrieval_backend'], 'prepared_sqlite')
+            self.assertEqual(indexed_result['scanned_records'], 3)
+            self.assertEqual(set(indexed_result['traces'][0]['spans'][0]['raw']), set(columns))
+            self.assertNotIn('header', indexed_result['traces'][0]['spans'][0]['locator'])
+
     def test_selected_trace_recovers_records_outside_window_and_across_files(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

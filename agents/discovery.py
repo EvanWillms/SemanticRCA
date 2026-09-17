@@ -11,7 +11,8 @@ from rca.discovery.pipeline import discover
 def solve(instruction: str, dataset_dir: Path, ctx: dict[str, Any]) -> Solution:
     interpretation = interpret(QueryRow(ctx['row_id'], instruction, ctx.get('task_index'))).to_dict()
     if interpretation['status'] == 'interpreted':
-        discovery = discover(dataset_dir, interpretation['scope'], ctx['row_id'], ctx.get('budget'))
+        discovery = discover(dataset_dir, interpretation['scope'], ctx['row_id'], ctx.get('budget'),
+                             ctx.get('run_context'))
     else:
         discovery = {'findings': {
             'schema_version': 'discovery-v1', 'row_id': ctx['row_id'],

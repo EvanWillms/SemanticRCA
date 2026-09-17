@@ -18,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / "libraries/trace_semant
 
 from rca.contracts import Solution
 from rca.discovery.budget import RunBudget
+from rca.discovery.context import RunContext
 from rca.inputs import InputValidationError, preflight_inputs
 from rca.outputs import OutputWriteError, OutputWriter
 
@@ -76,13 +77,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     run_started = time.monotonic()
     discovery_mode = args.agent == "agents.discovery"
     result_code = 0
+    run_budget = RunBudget()
+    run_context = RunContext(bundle.dataset_dir, bundle.out_dir, run_budget) if discovery_mode else None
     if discovery_mode:
         try:
-            writer.write_discovery_run("discovery", 0.0, len(bundle.rows))
+            writer.write_discovery_run("discovery", 0.0, len(bundle.rows), run_context.metadata())
         except Exception:
             print("error: discovery run record could not be initialized", file=sys.stderr)
             return 3
-    run_budget = RunBudget()
     for index, row in enumerate(bundle.rows):
         started = time.monotonic()
         try:
@@ -95,6 +97,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "out_dir": bundle.out_dir,
                     "task_index": row.task_index,
                     "budget": run_budget.allocate(len(bundle.rows) - index),
+                    "run_context": run_context,
                 },
             )
             if not isinstance(solution, Solution):
@@ -103,7 +106,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             if solution.discovery is not None:
                 if solution.discovery["findings"]["status"] != "completed":
                     result_code = 1
-                writer.write_discovery_run("discovery", time.monotonic() - run_started, len(bundle.rows))
+                writer.write_discovery_run("discovery", time.monotonic() - run_started, len(bundle.rows),
+                                           run_context.metadata() if run_context else None)
         except Exception:
             print(f"error: harness could not persist case {row.row_id}", file=sys.stderr)
             return 3
