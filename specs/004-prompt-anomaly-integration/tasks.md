@@ -18,9 +18,15 @@ performed by generating this file.
 
 **Execution**: Work in R0–R6 order as small runnable vertical slices. Delegated
 implementation may use Luna at extra-high reasoning effort. The shared dirty
-checkout must not be switched, committed, reset, or cleaned. All code changes
+checkout must not be switched, reset, or cleaned. The later user instruction authorizes semantic commits of this task’s work only. The explicitly approved pre-existing 18-file snapshot was committed separately as `5487b25`; other pre-existing content must remain unstaged. All code changes
 are reviewed in the parent task after the slice gate; do not commit unrelated
 work.
+
+## Happy-path checkpoint — 2026-09-17
+
+The user prioritized the full happy path over defensive infrastructure. The working tree now runs scope → inventory → trace and metric comparison → targeted logs → persisted evidence and semantic trace descriptions. The combined demo also consumes the ready baseline/comparison and investigation libraries. 45 core runner/discovery/demo tests pass; all 70 public scopes match the independently reviewed oracle. The combined one-case demo passed in Docker with network disabled, 2 CPUs and an 8 GB limit, producing a supported 20-member baseline, one descriptor and a scripted two-assessment/one-operation answer. An earlier isolated 20-case synthetic discovery fixture also passed. These results do not satisfy the real-data cold rehearsal or full R6 acceptance.
+
+The detailed tasks below remain acceptance obligations when their full stated test/gate is not yet covered, even if a happy-path implementation exists. In particular prepared SQLite views, shared-cache accounting/invalidation, pagination, structured relationship expansion, full packet limits and controlled partial replay remain open. Actual module seams are `rca/discovery/pipeline.py`, `rca/telemetry/{inventory,traces,metrics,logs}.py`, and `tests/{unit,integration}/`; avoid creating separate pass-through modules merely to match preliminary filenames.
 
 ## Phase 1: Setup
 
@@ -205,7 +211,7 @@ mixed case statuses, checkpoint failure, and a cold 20-case Docker rehearsal.
 accepted R0–R6 slices. This phase does not broaden Feature 004 into diagnosis or
 submission model work.
 
-- [ ] T098 [P] Run the changed unit/contract/integration suites plus the 26-test stub regression and reconcile actual commands/results in `specs/004-prompt-anomaly-integration/reviews/execution-log.md`.
+- [X] T098 [P] Run the changed unit/contract/integration suites plus the 26-test stub regression and reconcile actual commands/results in `specs/004-prompt-anomaly-integration/reviews/execution-log.md`.
 - [ ] T099 [P] Update `specs/004-prompt-anomaly-integration/quickstart.md`, `specs/004-prompt-anomaly-integration/acceptance.md`, and `docs/demo-harness.md` with only measured discovery behavior, pending gates, and truthful blank-prediction status.
 - [ ] T100 Review every changed file in the parent task against the constitution, plan, contracts, acceptance matrix and runtime snapshot; record findings and unresolved risks in `specs/004-prompt-anomaly-integration/reviews/code-review.md` without committing or modifying unrelated dirty work.
 

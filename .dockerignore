@@ -18,6 +18,19 @@
 !agents/**
 !rca/
 !rca/**
+!libraries/
+!libraries/trace_semantics/
+!libraries/trace_semantics/src/
+!libraries/trace_semantics/src/trace_semantics/
+!libraries/trace_semantics/src/trace_semantics/**
+!libraries/rca_domain/
+!libraries/rca_domain/src/
+!libraries/rca_domain/src/rca_domain/
+!libraries/rca_domain/src/rca_domain/**
+!scripts/
+!scripts/demo_discovery.py
+!scripts/demo_investigation.py
+!scripts/validate_discovery.py
 
 # Re-apply secret exclusions after the runtime directories are re-included.
 **/.env

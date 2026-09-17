@@ -6,6 +6,7 @@ import csv
 import json
 import os
 import tempfile
+import shutil
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
@@ -55,6 +56,32 @@ class OutputWriter:
         self.evidence_dir = self.out_dir / "evidence"
         self._published: list[tuple[int, str]] = []
         self._initialized = False
+        self._discovery_cases: list[dict[str, Any]] = []
+
+    def _write_json(self, path: Path, value: Any) -> None:
+        payload = json.dumps(value, sort_keys=True, indent=2, allow_nan=False) + "\n"
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                         delete=False) as handle:
+            temporary = Path(handle.name)
+            try:
+                handle.write(payload)
+                handle.flush()
+                os.fsync(handle.fileno())
+                os.replace(temporary, path)
+            finally:
+                temporary.unlink(missing_ok=True)
+
+    def write_discovery_run(self, capability: str, wall_s: float, total_cases: int) -> None:
+        """Publish the status of durable cases, including an empty inventory."""
+        (self.out_dir / "cases").mkdir(exist_ok=True)
+        self._write_json(self.out_dir / "discovery-run.json", {
+            "schema_version": "discovery-v1", "mode": "discovery",
+            "capability": capability, "cases": self._discovery_cases,
+            "total_cases": total_cases, "published_cases": len(self._discovery_cases),
+            "wall_s": wall_s, "shared_preparation_wall_s": 0.0,
+            "status": "completed" if len(self._discovery_cases) == total_cases and all(
+                case["discovery_status"] == "completed" for case in self._discovery_cases) else "incomplete",
+        })
 
     def initialize(self) -> None:
         """Create an empty artifact set and an atomic header-only CSV."""
@@ -137,12 +164,27 @@ class OutputWriter:
             raise OutputWriteError("case evidence already exists")
         usage_offset: int | None = None
         evidence_created = False
+        case_dir = self.out_dir / "cases" / str(row.row_id)
+        sidecars_created = False
         try:
+            if solution.discovery is not None:
+                case_dir.mkdir(parents=True)
+                sidecars_created = True
+                result = solution.discovery
+                self._write_json(case_dir / "scope.json", result["interpretation"])
+                self._write_json(case_dir / "findings.json", result["findings"])
+                with (case_dir / "operations.jsonl").open("w", encoding="utf-8") as handle:
+                    for operation in result.get("operations", []):
+                        handle.write(json.dumps(operation, allow_nan=False, sort_keys=True) + "\n")
+                    handle.flush()
+                    os.fsync(handle.fileno())
             evidence_path.write_text(solution.evidence, encoding="utf-8", newline="")
             evidence_created = True
             usage_offset = self._append_usage(_usage_record(row.row_id, wall_s, solution))
             self._atomic_write_predictions((*self._published, (row.row_id, solution.prediction)))
         except Exception as exc:
+            if sidecars_created:
+                shutil.rmtree(case_dir, ignore_errors=True)
             if usage_offset is not None:
                 self._rollback_usage(usage_offset)
             if evidence_created:
@@ -154,3 +196,10 @@ class OutputWriter:
                 raise
             raise OutputWriteError("could not persist case checkpoint") from exc
         self._published.append((row.row_id, solution.prediction))
+        if solution.discovery is not None:
+            self._discovery_cases.append({
+                "row_id": row.row_id,
+                "interpretation_status": solution.discovery["interpretation"]["status"],
+                "discovery_status": solution.discovery["findings"]["status"],
+                "stop_reason": solution.discovery["findings"]["stop_reason"],
+            })

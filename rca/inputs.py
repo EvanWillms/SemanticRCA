@@ -63,6 +63,7 @@ def _read_query_rows(query_path: Path) -> tuple[QueryRow, ...]:
                 )
             row_id_index = header.index("row_id")
             instruction_index = header.index("instruction")
+            task_index_column = header.index("task_index") if "task_index" in header else None
             for line_number, values in enumerate(reader, start=2):
                 if len(values) != len(header):
                     raise InputValidationError(
@@ -80,7 +81,11 @@ def _read_query_rows(query_path: Path) -> tuple[QueryRow, ...]:
                 if row_id in seen:
                     raise InputValidationError(f"query CSV row {line_number} repeats row_id {row_id}")
                 seen.add(row_id)
-                rows.append(QueryRow(row_id=row_id, instruction=values[instruction_index]))
+                rows.append(QueryRow(
+                    row_id=row_id,
+                    instruction=values[instruction_index],
+                    task_index=values[task_index_column] or None if task_index_column is not None else None,
+                ))
     except InputValidationError:
         raise
     except (OSError, UnicodeError, csv.Error) as exc:
