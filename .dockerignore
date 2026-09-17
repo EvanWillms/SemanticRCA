@@ -1,0 +1,31 @@
+# Start with an empty build context. Only the runtime allowlist below is re-included.
+**
+
+# Docker metadata, environment files, credentials, and local state stay excluded.
+.git/
+**/.env
+**/.env.*
+**/*credentials*
+**/*secret*
+**/*token*
+**/*.pem
+**/*.key
+
+# The image needs only the official entry point and the two runtime packages.
+!Dockerfile
+!run.py
+!agents/
+!agents/**
+!rca/
+!rca/**
+
+# Re-apply secret exclusions after the runtime directories are re-included.
+**/.env
+**/.env.*
+**/*credentials*
+**/*secret*
+**/*token*
+**/*.pem
+**/*.key
+**/__pycache__/
+**/*.py[cod]
