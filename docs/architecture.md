@@ -147,6 +147,8 @@ covers prompt input and interpretation only; this document does not expand it.
 |---|---|
 | Descriptive representation and trace extraction | [Feature 001](../specs/001-candidate-recall-experiment/spec.md), [Feature 005](../specs/005-track1-trace-extraction/spec.md), [ADR 0002](adr/0002-descriptive-semantic-compression.md), [ADR 0010](adr/0010-faceted-semantic-labeling.md) |
 | Retrieval, references and resource relationships | [Feature 003](../specs/003-contextual-telemetry-evidence/spec.md), ADRs [0003](adr/0003-indexed-telemetry-retrieval.md), [0004](adr/0004-qualified-contextual-baselines.md), [0005](adr/0005-evidence-backed-resource-relationships.md) |
+| Qualified short-window frontend baselines | [Feature 009](../specs/009-qualified-short-baselines/spec.md), [ADR 0013](adr/0013-qualified-short-window-frontend-baselines.md) |
+| Reference-relative comparative descriptors | [Feature 010](../specs/010-comparative-descriptors/spec.md), [ADR 0014](adr/0014-reference-relative-comparative-descriptors.md) |
 | Deterministic scope and discovery | [Feature 004](../specs/004-prompt-anomaly-integration/spec.md), [ADR 0006](adr/0006-bounded-investigation-operations.md) |
 | Agentic diagnosis and evaluator compatibility | [Feature 007](../specs/007-evidence-backed-diagnosis/spec.md), ADRs [0007](adr/0007-evidence-backed-incident-diagnosis.md), [0008](adr/0008-isolated-evaluator-compatibility.md) |
 | Runner, provider/routing restrictions and final release | [Feature 002](../specs/002-final-demo-runner/spec.md) |

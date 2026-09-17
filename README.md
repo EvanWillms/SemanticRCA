@@ -12,6 +12,8 @@ contracts, and the [project vision](.specify/memory/constitution.md#project-visi
 for success criteria. This is the target architecture; the current runtime is
 the empty-output harness described below.
 
+The short-window study is translated into [qualified frontend baseline requirements](specs/009-qualified-short-baselines/spec.md) and [comparative descriptor requirements](specs/010-comparative-descriptors/spec.md), governed by ADRs [0013](docs/adr/0013-qualified-short-window-frontend-baselines.md) and [0014](docs/adr/0014-reference-relative-comparative-descriptors.md). These specify future behavior; they do not establish implementation completion.
+
 ## Current implementation
 
 This repository currently ships the bounded, offline demo harness for the final runner milestone. It accepts the official three-flag command, validates the supplied dataset and query paths, and writes one structurally valid artifact set per query:

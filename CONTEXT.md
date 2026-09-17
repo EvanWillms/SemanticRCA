@@ -33,6 +33,24 @@ A set of observations or executions selected using explicit context and eligibil
 **Baseline**:
 A versioned description of reference behavior for a declared context, with its variation, supporting observations, and eligibility limitations. It does not by itself define successful behavior or an acceptable service outcome.
 
+**Recorded request context**:
+Declared observed attributes used to compare requests. Matching recorded context does not establish identical workload or business-route semantics.
+
+**Baseline support**:
+Whether reference evidence meets the declared requirements for a particular comparison. Support is distinct from center stability, health and availability of every derived statistic.
+
+**Center stability**:
+The uncertainty or sensitivity of an empirical reference center under a declared assessment. Passing an assessment does not establish health or indefinite validity.
+
+**Comparative descriptor**:
+A versioned reference-relative result, or explained unavailable outcome, retaining the measurement, context, qualifications and evidence. It does not by itself assert anomaly or cause.
+
+**Signed excess**:
+An observation minus its reference center in compatible measurement units. It retains direction and is distinct from an absolute-value operation or severity judgment.
+
+**Structural comparison**:
+A comparison of recorded operation presence or multiplicity against identified reference patterns and their frequencies. Unknown structure remains distinct from an empty structure or a known change.
+
 **Recorded-trace coverage**:
 The scope and completeness of retrieved span records for an execution within the available telemetry. Complete retrieval does not establish complete instrumentation of that execution.
 
