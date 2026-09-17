@@ -10,6 +10,13 @@ operation/unit policy. Acceptance is one nonempty executable demo plus the
 focused core test suite. The broader requirements below remain the domain
 library's target; review gaps are explicit follow-up work, not demo blockers.
 
+The user's follow-up requests a fixture-based demo. Bundle explicit trace,
+policy and expected-result JSON files; keep expectations outside encoder input.
+The demo loads these files both from the source checkout and an independently
+installed package. Optional output artifacts expose partitioning, early deferrals,
+the description set and summary. Reject expectation mismatches and existing
+output directories rather than reporting a false pass or replacing a prior run.
+
 The caller supplies a collection of traces already selected as fault related.
 This library describes their recorded evidence; selection and diagnosis belong
 to the caller. It performs no retrieval, model calls, anomaly detection, or

@@ -1,0 +1,21 @@
+{
+  "result": "PASS",
+  "selected_traces": 2,
+  "described_occurrences": 3,
+  "deferred_before_description": {
+    "unknown_operation": 1,
+    "unknown_status": 3
+  },
+  "operations": [
+    {
+      "raw": "HandleRequest",
+      "meaning": "request.handle"
+    },
+    {
+      "raw": "UnmappedOperation",
+      "meaning": null
+    }
+  ],
+  "raw_evidence_preserved": true,
+  "deterministic": true
+}

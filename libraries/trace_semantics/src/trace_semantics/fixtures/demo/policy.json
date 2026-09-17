@@ -1,0 +1,8 @@
+{
+  "version": "authored-demo-v1",
+  "operation_mappings": {
+    "HandleRequest": "request.handle"
+  },
+  "timestamp_unit": "ms",
+  "duration_unit": "ms"
+}

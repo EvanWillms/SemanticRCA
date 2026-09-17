@@ -67,3 +67,19 @@ These findings limit full robustness acceptance. None blocks the reviewed,
 complete authored happy path. Per the user's latest instruction, stop at this
 available interface and passing demo; do not claim production readiness,
 compression gains, diagnosis accuracy or complete original-spec acceptance.
+
+## Fixture-based demo follow-up
+
+Replaced inline demo records with bundled `traces.json`, `policy.json` and
+`expected.json`. Reviewed the new CLI, three public demo tests, fixture contents,
+package-data configuration and documentation. Expectations remain outside the
+encoder; invariant checks and strict canonical comparisons run before a PASS
+or saved output. Existing output directories are rejected.
+
+Luna extra-high TDD: the three CLI tests initially failed because `main(argv)`
+was unsupported, then passed after implementation. The complete package suite
+now reports **22 passed**; Ruff passes. The owner also verified a wheel built
+and installed from a copy outside the repository: isolated Python 3.12 loaded
+the bundled JSON fixtures and produced `partition.json`, `deferred.json`,
+`description.json` and `summary.json` with a PASS result. No new review blocker
+was found on this fixture path. Earlier robustness follow-ups remain unchanged.

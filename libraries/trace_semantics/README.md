@@ -18,6 +18,23 @@ unknown operation returned before description construction, retained raw
 evidence and deterministic output. After installation, use
 `python3 -m trace_semantics.demo` directly.
 
+The demo reads bundled, inspectable fixtures from
+[`src/trace_semantics/fixtures/demo/`](src/trace_semantics/fixtures/demo/README.md):
+`traces.json`, `policy.json` and `expected.json`. Expectations are checked by
+the demo verifier and never passed to the encoder.
+
+To save the intermediate and final artifacts into a new directory:
+
+```sh
+PYTHONPATH=libraries/trace_semantics/src python3 -m trace_semantics.demo \
+  --out /tmp/trace-domain-demo
+```
+
+The result contains `partition.json`, `deferred.json`, `description.json` and
+`summary.json`. An existing output directory is rejected to preserve earlier
+runs. For a different authored case, copy the three fixture JSON files, edit
+the evidence, policy and expectations, and pass `--fixture-dir YOUR_DIRECTORY`.
+
 This checkpoint is ready for the authored happy path: complete Track-1-shaped
 records, string identifiers, `""` as the root parent marker, and a caller-scoped
 operation/unit policy. Broader hardening remains explicit in

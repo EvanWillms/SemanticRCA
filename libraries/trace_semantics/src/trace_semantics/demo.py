@@ -1,55 +1,93 @@
-"""Run the authored, offline happy path: python -m trace_semantics.demo."""
+"""Run the bundled, offline happy path: ``python -m trace_semantics.demo``."""
 
+from __future__ import annotations
+
+import argparse
 import json
 from collections import Counter
+from importlib import resources
+from pathlib import Path
+from typing import Any
 
-from . import EncodingPolicy, canonical_json, describe, encode_traces, partition_traces
+from . import EncodingPolicy, canonical_json, describe, partition_traces
 
 
-def main() -> None:
-    """Demonstrate an early handoff followed by deterministic descriptions."""
-    def span(trace_id: str, span_id: str, parent: str, operation: str, record: int) -> dict:
-        return {
-            "raw": {
-                "trace_id": trace_id, "span_id": span_id, "parent_span": parent,
-                "cmdb_id": "example-worker", "operation_name": operation,
-                "type": "rpc", "status_code": "0",
-                "timestamp": "1000", "duration": "25",
-            },
-            "locator": {"path": "authored-demo.csv", "record": record},
-        }
+def _load_json(path: Any) -> Any:
+    def reject_constant(value: str) -> None:
+        raise ValueError(f"non-finite JSON constant is not allowed: {value}")
 
-    traces = [
-        {"trace_id": "selected-1", "deployment": "authored-demo", "spans": [
-            span("selected-1", "root", "", "HandleRequest", 2),
-            span("selected-1", "child", "root", "UnmappedOperation", 3),
-        ]},
-        {"trace_id": "selected-2", "deployment": "authored-demo", "spans": [
-            span("selected-2", "root", "", "HandleRequest", 4),
-        ]},
+    return json.loads(path.read_text(encoding="utf-8"), parse_constant=reject_constant)
+
+
+def _json_text(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, allow_nan=False, sort_keys=True, separators=(",", ":"))
+
+
+def _load_fixture(fixture_dir: Any) -> tuple[list[dict[str, Any]], EncodingPolicy, dict[str, Any]]:
+    traces = _load_json(fixture_dir.joinpath("traces.json"))
+    policy_data = _load_json(fixture_dir.joinpath("policy.json"))
+    expected = _load_json(fixture_dir.joinpath("expected.json"))
+    if not isinstance(traces, list) or not isinstance(policy_data, dict) or not isinstance(expected, dict):
+        raise TypeError("demo fixture files have the wrong JSON shape")
+    try:
+        policy = EncodingPolicy(
+            version=policy_data["version"],
+            operation_mappings=policy_data["operation_mappings"],
+            timestamp_unit=policy_data.get("timestamp_unit"),
+            duration_unit=policy_data.get("duration_unit"),
+        )
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError("demo policy fixture is invalid") from exc
+    return traces, policy, expected
+
+
+def _summary(traces: list[dict[str, Any]], policy: EncodingPolicy, partition: dict[str, Any], description: dict[str, Any]) -> dict[str, Any]:
+    recovered_raw = [
+        raw
+        for trace in description["traces"]
+        for raw in trace.get("raw_envelopes", [trace["raw"]])
     ]
-    policy = EncodingPolicy(
-        version="authored-demo-v1",
-        operation_mappings={"HandleRequest": "request.handle"},
-        timestamp_unit="ms", duration_unit="ms",
-    )
-    partition = partition_traces(traces, policy)
-    deferred = partition["deferred"]  # Ready for another processor before describe().
-    assert sum(item["reason"] == "unknown_operation" for item in deferred) == 1
-
-    result = describe(partition)
-    assert [trace["raw"] for trace in result["traces"]] == traces
-    assert sum(trace["coverage"]["occurrence_count"] for trace in result["traces"]) == 3
-    assert canonical_json(result) == canonical_json(encode_traces(traces, policy))
-    print(json.dumps({
+    return {
         "result": "PASS",
         "selected_traces": len(traces),
-        "described_occurrences": 3,
-        "deferred_before_description": dict(sorted(Counter(item["reason"] for item in deferred).items())),
-        "operations": result["meaning_dictionary"]["operations"],
-        "raw_evidence_preserved": True,
-        "deterministic": True,
-    }, indent=2))
+        "described_occurrences": sum(trace["coverage"].get("occurrence_count", 0) or 0 for trace in description["traces"]),
+        "deferred_before_description": dict(sorted(Counter(item["reason"] for item in partition["deferred"]).items())),
+        "operations": description["meaning_dictionary"]["operations"],
+        "raw_evidence_preserved": sorted(_json_text(raw) for raw in recovered_raw) == sorted(_json_text(raw) for raw in traces),
+        "deterministic": canonical_json(description) == canonical_json(describe(partition_traces(traces, policy))),
+    }
+
+
+def main(argv: list[str] | None = None) -> dict[str, Any]:
+    """Verify the fixture through partition and description, optionally writing artifacts."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--fixture-dir", type=Path, help="directory containing traces.json, policy.json, expected.json")
+    parser.add_argument("--out", type=Path, help="new directory for partition/deferred/description/summary JSON")
+    args = parser.parse_args(argv)
+    if args.out is not None and args.out.exists():
+        raise FileExistsError(f"output directory already exists: {args.out}")
+    fixture_dir = args.fixture_dir or resources.files("trace_semantics").joinpath("fixtures", "demo")
+    traces, policy, expected = _load_fixture(fixture_dir)
+    partition = partition_traces(traces, policy)
+    deferred = partition["deferred"]
+    description = describe(partition)
+    summary = _summary(traces, policy, partition, description)
+    if not summary["raw_evidence_preserved"] or not summary["deterministic"]:
+        raise ValueError(f"computed demo invariants failed: {summary!r}")
+    if canonical_json(summary) != canonical_json(expected):
+        raise ValueError(f"expected summary mismatch: expected {expected!r}, computed {summary!r}")
+    if args.out is not None:
+        try:
+            args.out.mkdir(parents=True)
+        except FileExistsError as exc:
+            raise FileExistsError(f"output directory already exists: {args.out}") from exc
+        for name, value in (
+            ("partition.json", partition), ("deferred.json", deferred),
+            ("description.json", description), ("summary.json", summary),
+        ):
+            args.out.joinpath(name).write_text(_json_text(value), encoding="utf-8")
+    print(json.dumps(summary, ensure_ascii=False, sort_keys=True, indent=2))
+    return summary
 
 
 if __name__ == "__main__":

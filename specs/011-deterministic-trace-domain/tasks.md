@@ -10,6 +10,8 @@
 - [x] Review all new code; repair demo blockers and record broader findings.
 - [x] Verify standalone installation, the nonempty demo and core regressions.
 - [x] Reconcile specification, plan and tasks with the user's demo-first scope.
+- [x] Move demo inputs/expectations into bundled JSON fixtures, add optional
+  artifact output and custom fixture selection, and verify the installed demo.
 
 ## Follow-up, explicitly outside the demo checkpoint
 

@@ -1,0 +1,65 @@
+[
+  {
+    "trace_id": "selected-1",
+    "deployment": "authored-demo",
+    "spans": [
+      {
+        "raw": {
+          "trace_id": "selected-1",
+          "span_id": "root",
+          "parent_span": "",
+          "cmdb_id": "example-worker",
+          "operation_name": "HandleRequest",
+          "type": "rpc",
+          "status_code": "0",
+          "timestamp": "1000",
+          "duration": "25"
+        },
+        "locator": {
+          "path": "authored-demo.csv",
+          "record": 2
+        }
+      },
+      {
+        "raw": {
+          "trace_id": "selected-1",
+          "span_id": "child",
+          "parent_span": "root",
+          "cmdb_id": "example-worker",
+          "operation_name": "UnmappedOperation",
+          "type": "rpc",
+          "status_code": "0",
+          "timestamp": "1000",
+          "duration": "25"
+        },
+        "locator": {
+          "path": "authored-demo.csv",
+          "record": 3
+        }
+      }
+    ]
+  },
+  {
+    "trace_id": "selected-2",
+    "deployment": "authored-demo",
+    "spans": [
+      {
+        "raw": {
+          "trace_id": "selected-2",
+          "span_id": "root",
+          "parent_span": "",
+          "cmdb_id": "example-worker",
+          "operation_name": "HandleRequest",
+          "type": "rpc",
+          "status_code": "0",
+          "timestamp": "1000",
+          "duration": "25"
+        },
+        "locator": {
+          "path": "authored-demo.csv",
+          "record": 4
+        }
+      }
+    ]
+  }
+]
