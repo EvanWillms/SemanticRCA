@@ -2,7 +2,7 @@ PYTHON ?= python3.12
 
 .PHONY: validate docker
 validate:
-	$(PYTHON) -m unittest tests.integration.test_model_policy tests.integration.test_model_client tests.integration.test_submission_agent tests.integration.test_discovery_partial tests.integration.test_input_to_finding tests.integration.test_assessment_cli tests.unit.test_submission_discovery -q
+	$(PYTHON) -m unittest tests.integration.test_model_policy tests.integration.test_model_client tests.integration.test_submission_agent tests.integration.test_discovery_partial tests.integration.test_discovery_pagination tests.integration.test_input_to_finding tests.integration.test_assessment_cli tests.unit.test_submission_discovery -q
 
 docker:
 	docker build -t semanticrca .

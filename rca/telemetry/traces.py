@@ -16,6 +16,21 @@ _TRACE_RAW_FIELDS = (
 _FRONTEND_COMPONENT = re.compile(r'frontend(?:-\d+)?')
 
 
+def _pagination_page(ordered: list[str], limit: int, offset: int) -> tuple[list[str], int, int | None]:
+    """Return one stable page and its continuation metadata."""
+    page_end = min(offset + limit, len(ordered))
+    kept = ordered[offset:page_end]
+    next_offset = page_end if page_end < len(ordered) else None
+    return kept, max(0, len(ordered) - page_end), next_offset
+
+
+def _validate_pagination(limit: int, offset: int) -> None:
+    if isinstance(limit, bool) or not isinstance(limit, int) or limit <= 0:
+        raise ValueError('limit must be a positive integer')
+    if isinstance(offset, bool) or not isinstance(offset, int) or offset < 0:
+        raise ValueError('offset must be a nonnegative integer')
+
+
 def _prepared_span(row: dict[str, Any]) -> dict[str, Any]:
     """Adapt one public prepared-view row to the legacy trace shape."""
     raw = {field: row.get(field, '') for field in _TRACE_RAW_FIELDS}
@@ -29,7 +44,7 @@ def _prepared_span(row: dict[str, Any]) -> dict[str, Any]:
 
 def _recover_prepared(dataset_dir: Path, inventory: dict[str, Any], start: float,
                       end: float, limit: int, check_budget: Any,
-                      prepared_view: Any) -> dict[str, Any]:
+                      prepared_view: Any, offset: int) -> dict[str, Any]:
     """Recover frontend-root traces through the prepared view boundary."""
     if check_budget is not None:
         check_budget()
@@ -50,7 +65,7 @@ def _recover_prepared(dataset_dir: Path, inventory: dict[str, Any], start: float
         trace_id = str(row['trace_id'])
         selected[trace_id] = min(timestamp, selected.get(trace_id, timestamp))
     ordered = sorted(selected, key=lambda key: (selected[key], key))
-    kept = ordered[:limit]
+    kept, withheld, next_offset = _pagination_page(ordered, limit, offset)
 
     if check_budget is not None:
         check_budget()
@@ -73,11 +88,12 @@ def _recover_prepared(dataset_dir: Path, inventory: dict[str, Any], start: float
                                               span['locator']['path'],
                                               span['locator']['record']))
         trace['recorded_recovery'] = 'complete_relative_to_snapshot'
-    return {'status': 'partial' if len(ordered) > limit else 'completed',
+    return {'status': 'partial' if withheld else 'completed',
             'traces': list(traces.values()), 'scanned_records': len(roots) + retrieved,
             'retrieved_records': retrieved, 'selected_count': len(ordered),
-            'withheld_count': max(0, len(ordered) - limit),
-            'stop_reason': 'trace_response_limit' if len(ordered) > limit else None,
+            'returned_count': len(kept), 'withheld_count': withheld,
+            'next_offset': next_offset,
+            'stop_reason': 'trace_response_limit' if withheld else None,
             'qualifications': ['Recorded recovery does not establish complete instrumentation.',
                                'Duration units remain provisional.'],
             'retrieval_backend': 'prepared_sqlite'}
@@ -85,15 +101,17 @@ def _recover_prepared(dataset_dir: Path, inventory: dict[str, Any], start: float
 
 def recover_traces(dataset_dir: Path, inventory: dict[str, Any], start: float,
                    end: float, limit: int = 30, check_budget=None,
-                   frontend_only: bool = False, prepared_view=None) -> dict[str, Any]:
+                   frontend_only: bool = False, prepared_view=None,
+                   offset: int = 0) -> dict[str, Any]:
     """Select by span start, then recover available records for selected IDs.
 
     Bounds are epoch seconds; Track 1 span starts are recorded in milliseconds.
     Selection and recovery are separate so unsorted partitions do not lose spans.
     """
+    _validate_pagination(limit, offset)
     if prepared_view is not None and frontend_only:
         return _recover_prepared(dataset_dir, inventory, start, end, limit,
-                                  check_budget, prepared_view)
+                                  check_budget, prepared_view, offset)
 
     sources = [source for source in inventory['sources'] if source['family'] == 'trace_span']
     selected: dict[str, float] = {}
@@ -112,7 +130,7 @@ def recover_traces(dataset_dir: Path, inventory: dict[str, Any], start: float,
                     trace_id = row['trace_id']
                     selected[trace_id] = min(timestamp, selected.get(trace_id, timestamp))
     ordered = sorted(selected, key=lambda key: (selected[key], key))
-    kept = ordered[:limit]
+    kept, withheld, next_offset = _pagination_page(ordered, limit, offset)
     traces = {key: {'trace_id': key, 'deployment': inventory['deployment'], 'spans': []}
               for key in kept}
     for source in sources:
@@ -131,10 +149,11 @@ def recover_traces(dataset_dir: Path, inventory: dict[str, Any], start: float,
         trace['spans'].sort(key=lambda span: (float(span['raw']['timestamp']),
                                             span['locator']['path'], span['locator']['record']))
         trace['recorded_recovery'] = 'complete_relative_to_snapshot'
-    return {'status': 'partial' if len(ordered) > limit else 'completed',
+    return {'status': 'partial' if withheld else 'completed',
             'traces': list(traces.values()), 'scanned_records': scanned,
-            'selected_count': len(ordered), 'withheld_count': max(0, len(ordered) - limit),
-            'stop_reason': 'trace_response_limit' if len(ordered) > limit else None,
+            'selected_count': len(ordered), 'returned_count': len(kept),
+            'withheld_count': withheld, 'next_offset': next_offset,
+            'stop_reason': 'trace_response_limit' if withheld else None,
             'qualifications': ['Recorded recovery does not establish complete instrumentation.',
                                'Duration units remain provisional.']}
 

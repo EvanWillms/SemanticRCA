@@ -31,9 +31,9 @@ live inference or accuracy evidence.
 
 ## Outstanding original acceptance
 
-- Full discovery can select its earliest 30 reference traces before reaching a
-  query trace. The response cap is documented, but consuming continuation pages
-  within budget remains unimplemented.
+- Trace continuation now reaches query traces beyond the first 30 historical
+  records and preserves completed page comparisons. The cold-data runtime and
+  memory limits of repeated enumeration/comparison still require measurement.
 - The original multimodal pipeline discarded completed observations after a
   later operation failed. The follow-up retention regression reproduced this
   before the fix; the reviewed fix now retains completed observations and
@@ -83,3 +83,33 @@ tests. The explicit discovery CLI and its artifact validator passed in image
 `18cf566e86b57dc4231b9f4fbd54f1f537e430bc29888d7246b64d56e73a1057`,
 with network disabled, 2 CPUs and 8 GB. Authored fixture output is at
 `/private/tmp/semanticrca-show-live-20260917/discovery-retention-output`.
+
+## Trace pagination follow-up
+
+The CLI regression initially exited partial with no query trace after forty
+reference roots. The executor now consumes stable offset pages under its case
+budget. Every page records its selection arguments, returned count, next offset,
+withheld count, source identity and elapsed time. Comparisons are updated after
+each complete page; a forced deadline on the next page retains earlier findings.
+Offsets are valid only for identical immutable source and selection arguments.
+
+The Luna API slice verifies 35 authored roots with equal timestamps, unsorted
+physical order and cross-partition spans. CSV and prepared-view pages match,
+never overlap, and together recover the expected trace IDs. Parent integration
+checks forty references followed by the query trace (two pages: 30 and 11), and
+a forced later-page deadline after ten query comparisons have completed.
+Parent review also removed a redundant raw-series deletion and copied trace
+comparison lists before adding metric findings, preserving separate channels.
+
+Validation: all 83 repository unittest checks and 20 `make validate` checks pass.
+The multi-page authored fixture passed the discovery CLI and validator in Docker
+image `e7518a55d3c6f9addbadf27b05f3c5aeb2a564f08568005cd9e975300836d85a`,
+with network disabled, 2 CPUs and 8 GB. Output:
+`/private/tmp/semanticrca-pagination-bt1_rile/out`. The query has a raw duration
+excess of 200 against forty eligible references; no causal diagnosis is claimed.
+
+This closes first-page starvation on the demonstrated source shape. It does
+not certify full-scale runtime: each page currently enumerates matching roots
+again and re-compares accumulated records. Bounded SQLite query interruption,
+unknown-root generic evidence, replay at recorded parse boundaries and cold
+20-case full discovery acceptance remain open.

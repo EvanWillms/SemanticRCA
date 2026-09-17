@@ -82,7 +82,13 @@ source-family/resource/KPI/unit for metric series, timestamp/source locator for
 logs. Response pages contain at most 30 recovered traces, 50 metric series or 200
 targeted log records. These are response limits, not a claim that the first page
 exhausts the scope. Explicit continuation and withheld counts accompany a bounded
-selection; unknown withheld counts must be marked unknown. If required discovery
+selection; unknown withheld counts must be marked unknown. Trace pages expose a
+nonnegative `offset` into the stable root-start/trace-ID order, `returned_count`,
+`selected_count` for the complete selection, `withheld_count` after this page,
+and `next_offset` (`null` when exhausted). Offsets apply only to the same immutable
+source snapshot and selection arguments. The discovery executor journals each
+page and compares completed pages before requesting the next, preserving those
+comparisons if a later page exhausts the budget. If required discovery
 cannot consume remaining pages within its work budget, report partial coverage.
 
 Metric comparisons use all inspected samples, before display reduction. For a

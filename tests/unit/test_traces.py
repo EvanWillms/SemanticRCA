@@ -10,6 +10,87 @@ from rca.telemetry.traces import recover_traces
 
 
 class TraceRecoveryTests(unittest.TestCase):
+    def test_frontend_root_pagination_is_stable_and_matches_prepared_recovery(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            columns = ['timestamp', 'cmdb_id', 'span_id', 'trace_id', 'duration',
+                       'type', 'status_code', 'operation_name', 'parent_span']
+            rows_by_partition = {'p1': [], 'p2': []}
+            roots = [(f'trace-{index:02d}', 1000 + index // 2) for index in range(35)]
+            for index, (trace_id, timestamp) in enumerate(reversed(roots)):
+                partition = 'p1' if index % 2 else 'p2'
+                rows_by_partition[partition].append(
+                    [timestamp, 'frontend-7', f'root-{trace_id}', trace_id, 100,
+                     'rpc', 0, 'GET /', ''])
+                child_partition = 'p2' if partition == 'p1' else 'p1'
+                rows_by_partition[child_partition].append(
+                    [timestamp + 1, 'worker', f'child-{trace_id}', trace_id, 20,
+                     'rpc', 0, 'fetch', f'root-{trace_id}'])
+            for partition, rows in rows_by_partition.items():
+                source = root / 'telemetry' / partition / 'trace' / 'trace_span.csv'
+                source.parent.mkdir(parents=True, exist_ok=True)
+                with source.open('w', newline='') as handle:
+                    writer = csv.writer(handle)
+                    writer.writerow(columns)
+                    writer.writerows(rows)
+
+            source_inventory = inventory(root, 'demo')
+            prepared = prepare_sources(root, source_inventory, root.parent / 'out')
+            expected = [trace_id for trace_id, timestamp in sorted(
+                roots, key=lambda item: (item[1], item[0]))]
+            pages = [recover_traces(root, source_inventory, 1, 2, frontend_only=True,
+                                    limit=30, offset=offset)
+                     for offset in (0, 30)]
+            prepared_pages = [recover_traces(root, source_inventory, 1, 2,
+                                             frontend_only=True, limit=30, offset=offset,
+                                             prepared_view=prepared)
+                              for offset in (0, 30)]
+
+            self.assertEqual([trace['trace_id'] for trace in pages[0]['traces']], expected[:30])
+            self.assertEqual([trace['trace_id'] for trace in pages[1]['traces']], expected[30:])
+            self.assertEqual(
+                {trace['trace_id'] for page in pages for trace in page['traces']},
+                set(expected),
+            )
+            self.assertEqual(
+                set(trace['trace_id'] for trace in pages[0]['traces']).isdisjoint(
+                    trace['trace_id'] for trace in pages[1]['traces']),
+                True,
+            )
+            for csv_page, prepared_page in zip(pages, prepared_pages):
+                self.assertEqual(csv_page['traces'], prepared_page['traces'])
+                for key in ('status', 'selected_count', 'returned_count',
+                            'withheld_count', 'next_offset'):
+                    self.assertEqual(csv_page[key], prepared_page[key])
+            self.assertEqual(pages[0]['status'], 'partial')
+            self.assertEqual(pages[0]['returned_count'], 30)
+            self.assertEqual(pages[0]['withheld_count'], 5)
+            self.assertEqual(pages[0]['next_offset'], 30)
+            self.assertEqual(pages[1]['status'], 'completed')
+            self.assertEqual(pages[1]['returned_count'], 5)
+            self.assertEqual(pages[1]['withheld_count'], 0)
+            self.assertIsNone(pages[1]['next_offset'])
+
+    def test_recovery_pagination_requires_integer_offset_and_positive_limit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'trace.csv'
+            columns = ['timestamp', 'cmdb_id', 'span_id', 'trace_id', 'duration',
+                       'type', 'status_code', 'operation_name', 'parent_span']
+            with source.open('w', newline='') as handle:
+                writer = csv.writer(handle)
+                writer.writerow(columns)
+                writer.writerow([1000, 'frontend', 'root', 'trace', 100, 'rpc', 0, 'GET /', ''])
+            source_inventory = {'deployment': 'demo', 'sources': [
+                {'path': 'trace.csv', 'family': 'trace_span', 'sha256': 'fixture'}]}
+
+            with self.assertRaises(ValueError):
+                recover_traces(root, source_inventory, 1, 2, offset=-1)
+            with self.assertRaises(ValueError):
+                recover_traces(root, source_inventory, 1, 2, offset=1.5)
+            with self.assertRaises(ValueError):
+                recover_traces(root, source_inventory, 1, 2, limit=0)
+
     def test_prepared_recovery_matches_csv_recovery(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

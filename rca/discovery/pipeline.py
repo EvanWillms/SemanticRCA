@@ -64,6 +64,9 @@ def _discover(dataset, scope, row_id, budget, operations, run_context, partial_s
                            scanned_records=result.get('scanned_records', 0),
                            withheld_count=result.get('withheld_count', 0),
                            stop_reason=result.get('stop_reason'))
+            if 'next_offset' in result:
+                receipt['next_offset'] = result['next_offset']
+                receipt['returned_count'] = result['returned_count']
             return result
         except (BudgetExceeded, TraceIndexBudgetExceeded):
             receipt.update(status='budget_exhausted', stop_reason='analysis_time_budget_exhausted')
@@ -104,21 +107,39 @@ def _discover(dataset, scope, row_id, budget, operations, run_context, partial_s
         return {'findings': {**base, 'status': 'unavailable', 'stop_reason': 'missing_telemetry_sources'},
                 'operations': operations}
 
-    trace_result = perform('recover_traces', 'Which frontend-root traces start in the query or reference window?',
-                           {'start': start - 300, 'end': end, 'limit': 30, 'frontend_only': True},
-                           lambda: recover_traces(dataset, snapshot, start - 300, end,
-                                                  check_budget=budget.check, frontend_only=True,
-                                                  prepared_view=preparation['view'] if preparation else None))
-    base['recorded_traces'] = trace_result['traces']
-    base['trace_coverage'] = {key: value for key, value in trace_result.items() if key != 'traces'}
-    for family in coverage:
-        if family == 'trace_span' and any(source['family'] == family for source in snapshot['sources']):
-            coverage[family] = {'status': 'inspected', 'reason': None}
-    trace_comparison = perform('compare', 'How do query durations and structures differ from prior observations?',
-                               {'channel': 'trace', 'reference_seconds': 300},
-                               lambda: compare_traces(trace_result, start, end))
-    base['findings'].extend(trace_comparison['findings'])
-    base['candidates'].extend(trace_comparison['candidates'])
+    offset = 0
+    scanned_records = 0
+    page_count = 0
+    while True:
+        page = perform('recover_traces', 'Which frontend-root traces start in the query or reference window?',
+                       {'start': start - 300, 'end': end, 'limit': 30,
+                        'frontend_only': True, 'offset': offset},
+                       lambda: recover_traces(dataset, snapshot, start - 300, end,
+                                              check_budget=budget.check, frontend_only=True,
+                                              prepared_view=preparation['view'] if preparation else None,
+                                              offset=offset))
+        base['recorded_traces'].extend(page['traces'])
+        scanned_records += page['scanned_records']
+        page_count += 1
+        trace_result = {**page, 'traces': base['recorded_traces'],
+                        'scanned_records': scanned_records,
+                        'returned_count': len(base['recorded_traces']),
+                        'retrieved_records': sum(len(trace['spans']) for trace in base['recorded_traces']),
+                        'page_count': page_count}
+        base['trace_coverage'] = {key: value for key, value in trace_result.items() if key != 'traces'}
+        if any(source['family'] == 'trace_span' for source in snapshot['sources']):
+            coverage['trace_span'] = {'status': 'inspected', 'reason': page['stop_reason']}
+        # Compare completed pages before attempting another page, so a later
+        # deadline cannot erase findings already supported by retrieved records.
+        trace_comparison = perform('compare', 'How do query durations and structures differ from prior observations?',
+                                   {'channel': 'trace', 'reference_seconds': 300,
+                                    'completed_pages': page_count},
+                                   lambda: compare_traces(trace_result, start, end))
+        base['findings'] = list(trace_comparison['findings'])
+        base['candidates'] = list(trace_comparison['candidates'])
+        offset = page['next_offset']
+        if offset is None:
+            break
     from rca.telemetry.metrics import metric_series, compare_series
     metrics = perform('metric_series', 'Which resource measurements occur in the query and reference window?',
                       {'start': start - 300, 'end': end}, lambda: metric_series(dataset, snapshot, scope, check_budget=budget.check))
@@ -141,7 +162,6 @@ def _discover(dataset, scope, row_id, budget, operations, run_context, partial_s
     base['findings'].extend(metric_comparison['findings'])
     base['candidates'].extend(metric_comparison['candidates'])
     del base['metric_series']  # Completed comparisons already retain their source observations.
-    base.pop('metric_series', None)
     # Only describe traces selected by observed departures. This is an evidence
     # selection rule, not an assertion that the trace contains the root cause.
     from trace_semantics import EncodingPolicy, partition_traces, describe
