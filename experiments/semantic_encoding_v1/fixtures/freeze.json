@@ -1,0 +1,12 @@
+{
+  "before_encoder_implementation": true,
+  "frozen_at": "2026-09-17T20:24:02.842290+00:00",
+  "sha256": {
+    "experiments/semantic_encoding_v1/fixtures/T0.json": "1891aa4db9d2b51e6fa88f84962466916e11d98a332e4b4aec35fa5982a9dcde",
+    "experiments/semantic_encoding_v1/fixtures/T1.json": "9c8c9873e1f225d84a131035c941204c15e1c8e95be1c14763770e2393fac683",
+    "experiments/semantic_encoding_v1/fixtures/T2.json": "934d205325f526a3885f18825dbbfedbd5d0331ff73995deb5aa13659d743d54",
+    "experiments/semantic_encoding_v1/fixtures/codebook.json": "e08d89c3f795d06937aa7b971f798e5cdad4494e920b37e7d04caff90d840f83",
+    "experiments/semantic_encoding_v1/fixtures/expected-facts.json": "401de54775c879790cc790b8b9fa77cbcad25617550475166f96437742026f41",
+    "experiments/semantic_encoding_v1/fixtures/policy.json": "a1e8ec97bcb49423741c968d82c22ed5040af7f3110d699f0cf69d80e7effe16"
+  }
+}

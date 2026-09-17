@@ -1,0 +1,19 @@
+{
+  "time": {
+    "expected_local": "2022-03-20T00:00:00+08:00",
+    "seconds": "1647705600",
+    "milliseconds": "1647705600000",
+    "same_instant": true,
+    "round_trip_seconds": 1647705600,
+    "round_trip_milliseconds": 1647705600000
+  },
+  "names": [
+    {"case": "documented_container", "input": "node-5.adservice-2", "expected": {"recording_entity": "node-5.adservice-2", "pod": "adservice-2", "node": "node-5", "service": "adservice", "replica": "2"}},
+    {"case": "unseen_container", "input": "node-9.checkoutservice-7", "expected": {"recording_entity": "node-9.checkoutservice-7", "pod": "checkoutservice-7", "node": "node-9", "service": "checkoutservice", "replica": "7"}},
+    {"case": "documented_mesh", "input": "adservice-0.destination.frontend.adservice", "expected": {"source": "adservice-0", "direction": "destination", "destination": "frontend.adservice"}},
+    {"case": "unseen_mesh", "input": "checkoutservice-7.destination.currencyservice", "expected": {"source": "checkoutservice-7", "direction": "destination", "destination": "currencyservice"}},
+    {"case": "malformed_container", "input": "node-xx..", "expected": null},
+    {"case": "malformed_mesh_trailing_dot", "input": "x.destination.y.", "expected": null},
+    {"case": "malformed_mesh_empty_label", "input": "x.destination..y", "expected": null}
+  ]
+}

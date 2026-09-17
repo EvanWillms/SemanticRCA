@@ -1,0 +1,271 @@
+{
+  "T0": {
+    "counts": {
+      "synthetic.Cart/GetCart": 2,
+      "synthetic.Catalog/GetProduct": 3,
+      "synthetic.Frontend/HandleRequest": 1,
+      "synthetic.Storage/HGET": 1
+    },
+    "different_entity_pairs": [
+      [
+        "1ef5",
+        "6fa6"
+      ],
+      [
+        "2bd2",
+        "1ef5"
+      ],
+      [
+        "2bd2",
+        "4de4"
+      ],
+      [
+        "2bd2",
+        "6fa6"
+      ],
+      [
+        "4de4",
+        "6fa6"
+      ],
+      [
+        "7ac3",
+        "1ef5"
+      ],
+      [
+        "7ac3",
+        "4de4"
+      ],
+      [
+        "7ac3",
+        "6fa6"
+      ],
+      [
+        "8af0",
+        "1ef5"
+      ],
+      [
+        "8af0",
+        "2bd2"
+      ],
+      [
+        "8af0",
+        "4de4"
+      ],
+      [
+        "8af0",
+        "6fa6"
+      ],
+      [
+        "8af0",
+        "7ac3"
+      ],
+      [
+        "8af0",
+        "9ce1"
+      ],
+      [
+        "9ce1",
+        "1ef5"
+      ],
+      [
+        "9ce1",
+        "2bd2"
+      ],
+      [
+        "9ce1",
+        "4de4"
+      ],
+      [
+        "9ce1",
+        "6fa6"
+      ],
+      [
+        "9ce1",
+        "7ac3"
+      ]
+    ],
+    "edge_count": 6,
+    "entities": [
+      "cart#1",
+      "catalog#1",
+      "catalog#2",
+      "checkout#1",
+      "frontend#1"
+    ],
+    "parent_edges": [
+      [
+        "2bd2",
+        "7ac3"
+      ],
+      [
+        "8af0",
+        "1ef5"
+      ],
+      [
+        "8af0",
+        "4de4"
+      ],
+      [
+        "8af0",
+        "6fa6"
+      ],
+      [
+        "8af0",
+        "9ce1"
+      ],
+      [
+        "9ce1",
+        "2bd2"
+      ]
+    ],
+    "same_entity_pairs": [
+      [
+        "2bd2",
+        "7ac3"
+      ],
+      [
+        "4de4",
+        "1ef5"
+      ]
+    ],
+    "span_count": 7
+  },
+  "authority": "authored S03 relation expectations frozen before encoder amendment",
+  "intervention": {
+    "new_entity": "catalog#new",
+    "span_id": "1ef5"
+  },
+  "rebind": {
+    "counts": {
+      "synthetic.Cart/GetCart": 2,
+      "synthetic.Catalog/GetProduct": 3,
+      "synthetic.Frontend/HandleRequest": 1,
+      "synthetic.Storage/HGET": 1
+    },
+    "different_entity_pairs": [
+      [
+        "1ef5",
+        "6fa6"
+      ],
+      [
+        "2bd2",
+        "1ef5"
+      ],
+      [
+        "2bd2",
+        "4de4"
+      ],
+      [
+        "2bd2",
+        "6fa6"
+      ],
+      [
+        "4de4",
+        "1ef5"
+      ],
+      [
+        "4de4",
+        "6fa6"
+      ],
+      [
+        "7ac3",
+        "1ef5"
+      ],
+      [
+        "7ac3",
+        "4de4"
+      ],
+      [
+        "7ac3",
+        "6fa6"
+      ],
+      [
+        "8af0",
+        "1ef5"
+      ],
+      [
+        "8af0",
+        "2bd2"
+      ],
+      [
+        "8af0",
+        "4de4"
+      ],
+      [
+        "8af0",
+        "6fa6"
+      ],
+      [
+        "8af0",
+        "7ac3"
+      ],
+      [
+        "8af0",
+        "9ce1"
+      ],
+      [
+        "9ce1",
+        "1ef5"
+      ],
+      [
+        "9ce1",
+        "2bd2"
+      ],
+      [
+        "9ce1",
+        "4de4"
+      ],
+      [
+        "9ce1",
+        "6fa6"
+      ],
+      [
+        "9ce1",
+        "7ac3"
+      ]
+    ],
+    "edge_count": 6,
+    "entities": [
+      "cart#1",
+      "catalog#1",
+      "catalog#2",
+      "catalog#new",
+      "checkout#1",
+      "frontend#1"
+    ],
+    "parent_edges": [
+      [
+        "2bd2",
+        "7ac3"
+      ],
+      [
+        "8af0",
+        "1ef5"
+      ],
+      [
+        "8af0",
+        "4de4"
+      ],
+      [
+        "8af0",
+        "6fa6"
+      ],
+      [
+        "8af0",
+        "9ce1"
+      ],
+      [
+        "9ce1",
+        "2bd2"
+      ]
+    ],
+    "same_entity_pairs": [
+      [
+        "2bd2",
+        "7ac3"
+      ]
+    ],
+    "span_count": 7
+  }
+}
+

@@ -1,0 +1,15 @@
+{
+  "operations": {
+    "C": "cart.get",
+    "D": "db.hget",
+    "P": "catalog.get_product",
+    "R": "request.handle"
+  },
+  "raw_mappings": {
+    "synthetic.Cart/GetCart": "C",
+    "synthetic.Catalog/GetProduct": "P",
+    "synthetic.Frontend/HandleRequest": "R",
+    "synthetic.Storage/HGET": "D"
+  },
+  "version": "s01-operations-v1"
+}

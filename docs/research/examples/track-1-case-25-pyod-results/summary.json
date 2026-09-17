@@ -1,0 +1,1459 @@
+{
+  "source": "/Users/nonadmin/Development/SymbolicRCA/data/track-1/telemetry/2022_03_20/trace/trace_span.csv",
+  "query_start_ms": 1647788400000,
+  "window_ms": 1800000,
+  "reference_roots": 2568,
+  "query_roots": 2729,
+  "eligible": 2729,
+  "excluded": 0,
+  "slow_query_roots": 1332,
+  "signatures": 9,
+  "versions": {
+    "pyod": "3.6.6",
+    "numpy": "2.4.6",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.17.1"
+  },
+  "iforest_params": {
+    "behaviour": "old",
+    "bootstrap": false,
+    "contamination": 0.1,
+    "max_features": 1.0,
+    "max_samples": "auto",
+    "n_estimators": 100,
+    "n_jobs": 1,
+    "random_state": 42,
+    "verbose": 0
+  },
+  "leaders": {
+    "mad_score": [
+      {
+        "timestamp": "1647788971331",
+        "cmdb_id": "frontend-2",
+        "span_id": "d520fc2d7fae1ee0",
+        "trace_id": "328e653dddef2f29d419a46895d85d12",
+        "duration": "428249",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 4524855,
+        "signature": [
+          [
+            "hipstershop.CheckoutService/PlaceOrder",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            5
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 428.249,
+        "baseline_n": 102,
+        "baseline_median_ms": 93.9525,
+        "baseline_mad_ms": 6.612499999999997,
+        "baseline_max_ms": 6746.74,
+        "excess_ms": 334.29650000000004,
+        "mad_score": 34.09950688090739,
+        "iforest_raw_score": 0.19000193831123763,
+        "iforest_score": 0.19000193831123763,
+        "rank_range": [
+          1,
+          1
+        ]
+      },
+      {
+        "timestamp": "1647788445308",
+        "cmdb_id": "frontend-0",
+        "span_id": "a717fe0b394499f4",
+        "trace_id": "33ac121d12f9d81f70a93424c7312544",
+        "duration": "929",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 7572694,
+        "signature": [],
+        "period": "query",
+        "duration_ms": 0.929,
+        "baseline_n": 207,
+        "baseline_median_ms": 0.181,
+        "baseline_mad_ms": 0.015999999999999986,
+        "baseline_max_ms": 0.938,
+        "excess_ms": 0.748,
+        "mad_score": 31.53287500000003,
+        "iforest_raw_score": 0.19029525895287686,
+        "iforest_score": 0.19029525895287686,
+        "rank_range": [
+          2,
+          2
+        ]
+      },
+      {
+        "timestamp": "1647789603075",
+        "cmdb_id": "frontend-0",
+        "span_id": "f08d910325548265",
+        "trace_id": "b431a0f605a0146ef932be1869a6abb3",
+        "duration": "100889",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 3005464,
+        "signature": [
+          [
+            "hipstershop.AdService/GetAds",
+            1
+          ],
+          [
+            "hipstershop.CartService/GetCart",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/Convert",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            6
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 100.889,
+        "baseline_n": 1234,
+        "baseline_median_ms": 58.5025,
+        "baseline_mad_ms": 1.5610000000000035,
+        "baseline_max_ms": 53318.439,
+        "excess_ms": 42.3865,
+        "mad_score": 18.314986707238905,
+        "iforest_raw_score": 0.165089629210936,
+        "iforest_score": 0.165089629210936,
+        "rank_range": [
+          3,
+          3
+        ]
+      },
+      {
+        "timestamp": "1647788690897",
+        "cmdb_id": "frontend-0",
+        "span_id": "438d9115bb9584a8",
+        "trace_id": "52c25a4319f7ba1b221480daa98e5c46",
+        "duration": "575",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 7575139,
+        "signature": [],
+        "period": "query",
+        "duration_ms": 0.575,
+        "baseline_n": 207,
+        "baseline_median_ms": 0.181,
+        "baseline_mad_ms": 0.015999999999999986,
+        "baseline_max_ms": 0.938,
+        "excess_ms": 0.39399999999999996,
+        "mad_score": 16.609562500000013,
+        "iforest_raw_score": 0.165089629210936,
+        "iforest_score": 0.165089629210936,
+        "rank_range": [
+          4,
+          4
+        ]
+      },
+      {
+        "timestamp": "1647788402670",
+        "cmdb_id": "frontend-2",
+        "span_id": "01c9f593f15df315",
+        "trace_id": "ab70a13a3cbfd3200bf024b708485c0b",
+        "duration": "86589",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 9097084,
+        "signature": [
+          [
+            "hipstershop.AdService/GetAds",
+            1
+          ],
+          [
+            "hipstershop.CartService/GetCart",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/Convert",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            6
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 86.589,
+        "baseline_n": 1234,
+        "baseline_median_ms": 58.5025,
+        "baseline_mad_ms": 1.5610000000000035,
+        "baseline_max_ms": 53318.439,
+        "excess_ms": 28.0865,
+        "mad_score": 12.13603090967326,
+        "iforest_raw_score": 0.1479568489672502,
+        "iforest_score": 0.1479568489672502,
+        "rank_range": [
+          5,
+          5
+        ]
+      },
+      {
+        "timestamp": "1647789621943",
+        "cmdb_id": "frontend-2",
+        "span_id": "c3250362eeede9c0",
+        "trace_id": "e316271feb50bc5f50b1012a3b2ade85",
+        "duration": "451",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 9109887,
+        "signature": [],
+        "period": "query",
+        "duration_ms": 0.451,
+        "baseline_n": 207,
+        "baseline_median_ms": 0.181,
+        "baseline_mad_ms": 0.015999999999999986,
+        "baseline_max_ms": 0.938,
+        "excess_ms": 0.27,
+        "mad_score": 11.38218750000001,
+        "iforest_raw_score": 0.13949988120803808,
+        "iforest_score": 0.13949988120803808,
+        "rank_range": [
+          6,
+          6
+        ]
+      },
+      {
+        "timestamp": "1647788860814",
+        "cmdb_id": "frontend-0",
+        "span_id": "1ec536b515095de2",
+        "trace_id": "b19ba0a3ee4ebdd66b62420507fabe34",
+        "duration": "83087",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 6048518,
+        "signature": [
+          [
+            "hipstershop.AdService/GetAds",
+            1
+          ],
+          [
+            "hipstershop.CartService/GetCart",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/Convert",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            6
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 83.087,
+        "baseline_n": 1234,
+        "baseline_median_ms": 58.5025,
+        "baseline_mad_ms": 1.5610000000000035,
+        "baseline_max_ms": 53318.439,
+        "excess_ms": 24.584500000000006,
+        "mad_score": 10.622834881486206,
+        "iforest_raw_score": 0.13949988120803808,
+        "iforest_score": 0.13949988120803808,
+        "rank_range": [
+          7,
+          7
+        ]
+      },
+      {
+        "timestamp": "1647789438885",
+        "cmdb_id": "frontend-2",
+        "span_id": "d385142cd321fe69",
+        "trace_id": "cc322a181c9ad9b6d6393dd4d1a7b77f",
+        "duration": "97075",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 4529992,
+        "signature": [
+          [
+            "hipstershop.CartService/GetCart",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/Convert",
+            3
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            7
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ],
+          [
+            "hipstershop.ShippingService/GetQuote",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 97.075,
+        "baseline_n": 362,
+        "baseline_median_ms": 67.275,
+        "baseline_mad_ms": 2.0080000000000027,
+        "baseline_max_ms": 27147.171,
+        "excess_ms": 29.799999999999997,
+        "mad_score": 10.010009960159348,
+        "iforest_raw_score": 0.13783180455391347,
+        "iforest_score": 0.13783180455391347,
+        "rank_range": [
+          8,
+          8
+        ]
+      },
+      {
+        "timestamp": "1647789294963",
+        "cmdb_id": "frontend-2",
+        "span_id": "93679dc2b559a0bd",
+        "trace_id": "35ed7f1e058ead5ddb3348cdf21e59df",
+        "duration": "81644",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 4528422,
+        "signature": [
+          [
+            "hipstershop.AdService/GetAds",
+            1
+          ],
+          [
+            "hipstershop.CartService/GetCart",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/Convert",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            6
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 81.644,
+        "baseline_n": 1234,
+        "baseline_median_ms": 58.5025,
+        "baseline_mad_ms": 1.5610000000000035,
+        "baseline_max_ms": 53318.439,
+        "excess_ms": 23.141500000000008,
+        "mad_score": 9.9993220691864,
+        "iforest_raw_score": 0.13783180455391347,
+        "iforest_score": 0.13783180455391347,
+        "rank_range": [
+          9,
+          9
+        ]
+      },
+      {
+        "timestamp": "1647789596340",
+        "cmdb_id": "frontend-2",
+        "span_id": "34f0223e6012bd42",
+        "trace_id": "35f4187d2e3da2232f09635d884a1f95",
+        "duration": "414",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 3005369,
+        "signature": [],
+        "period": "query",
+        "duration_ms": 0.414,
+        "baseline_n": 207,
+        "baseline_median_ms": 0.181,
+        "baseline_mad_ms": 0.015999999999999986,
+        "baseline_max_ms": 0.938,
+        "excess_ms": 0.23299999999999998,
+        "mad_score": 9.822406250000007,
+        "iforest_raw_score": 0.13783180455391347,
+        "iforest_score": 0.13783180455391347,
+        "rank_range": [
+          10,
+          10
+        ]
+      }
+    ],
+    "duration_ms": [
+      {
+        "timestamp": "1647788971331",
+        "cmdb_id": "frontend-2",
+        "span_id": "d520fc2d7fae1ee0",
+        "trace_id": "328e653dddef2f29d419a46895d85d12",
+        "duration": "428249",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 4524855,
+        "signature": [
+          [
+            "hipstershop.CheckoutService/PlaceOrder",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            5
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 428.249,
+        "baseline_n": 102,
+        "baseline_median_ms": 93.9525,
+        "baseline_mad_ms": 6.612499999999997,
+        "baseline_max_ms": 6746.74,
+        "excess_ms": 334.29650000000004,
+        "mad_score": 34.09950688090739,
+        "iforest_raw_score": 0.19000193831123763,
+        "iforest_score": 0.19000193831123763,
+        "rank_range": [
+          1,
+          1
+        ]
+      },
+      {
+        "timestamp": "1647789233450",
+        "cmdb_id": "frontend-2",
+        "span_id": "03989a4694181900",
+        "trace_id": "ef00c52d317dd7bf697150bd1d96fe5b",
+        "duration": "170401",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 3001496,
+        "signature": [
+          [
+            "hipstershop.CheckoutService/PlaceOrder",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            5
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 170.401,
+        "baseline_n": 102,
+        "baseline_median_ms": 93.9525,
+        "baseline_mad_ms": 6.612499999999997,
+        "baseline_max_ms": 6746.74,
+        "excess_ms": 76.44850000000001,
+        "mad_score": 7.7980360302457505,
+        "iforest_raw_score": 0.13328788968395017,
+        "iforest_score": 0.13328788968395017,
+        "rank_range": [
+          2,
+          2
+        ]
+      },
+      {
+        "timestamp": "1647789823413",
+        "cmdb_id": "frontend-2",
+        "span_id": "331e709670d43a08",
+        "trace_id": "c67e0c33c7d5eeed3b2057a71264738a",
+        "duration": "153217",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 7587141,
+        "signature": [
+          [
+            "hipstershop.CheckoutService/PlaceOrder",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            5
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 153.217,
+        "baseline_n": 102,
+        "baseline_median_ms": 93.9525,
+        "baseline_mad_ms": 6.612499999999997,
+        "baseline_max_ms": 6746.74,
+        "excess_ms": 59.26450000000001,
+        "mad_score": 6.045203062381856,
+        "iforest_raw_score": 0.10792392172570348,
+        "iforest_score": 0.10792392172570348,
+        "rank_range": [
+          3,
+          3
+        ]
+      },
+      {
+        "timestamp": "1647789465526",
+        "cmdb_id": "frontend-0",
+        "span_id": "53e7758a2755c085",
+        "trace_id": "6682c4cbcac33c45c96a9533c715c42e",
+        "duration": "148886",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 7583379,
+        "signature": [
+          [
+            "hipstershop.CheckoutService/PlaceOrder",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            5
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 148.886,
+        "baseline_n": 102,
+        "baseline_median_ms": 93.9525,
+        "baseline_mad_ms": 6.612499999999997,
+        "baseline_max_ms": 6746.74,
+        "excess_ms": 54.933499999999995,
+        "mad_score": 5.6034246880907395,
+        "iforest_raw_score": 0.10223732888758347,
+        "iforest_score": 0.10223732888758347,
+        "rank_range": [
+          4,
+          4
+        ]
+      },
+      {
+        "timestamp": "1647789358824",
+        "cmdb_id": "frontend-2",
+        "span_id": "ba82fbbbfcde778a",
+        "trace_id": "9623fb27ecd62f714f74904c65335237",
+        "duration": "146401",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 6053875,
+        "signature": [
+          [
+            "hipstershop.CheckoutService/PlaceOrder",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            5
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 146.401,
+        "baseline_n": 102,
+        "baseline_median_ms": 93.9525,
+        "baseline_mad_ms": 6.612499999999997,
+        "baseline_max_ms": 6746.74,
+        "excess_ms": 52.44850000000001,
+        "mad_score": 5.349945293005675,
+        "iforest_raw_score": 0.09658374139797016,
+        "iforest_score": 0.09658374139797016,
+        "rank_range": [
+          5,
+          5
+        ]
+      },
+      {
+        "timestamp": "1647790145217",
+        "cmdb_id": "frontend-0",
+        "span_id": "d85545abea865671",
+        "trace_id": "2f0502bee14fb4515ea616f2e260f301",
+        "duration": "146055",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 7590517,
+        "signature": [
+          [
+            "hipstershop.CheckoutService/PlaceOrder",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            5
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 146.055,
+        "baseline_n": 102,
+        "baseline_median_ms": 93.9525,
+        "baseline_mad_ms": 6.612499999999997,
+        "baseline_max_ms": 6746.74,
+        "excess_ms": 52.102500000000006,
+        "mad_score": 5.31465198487713,
+        "iforest_raw_score": 0.09658374139797016,
+        "iforest_score": 0.09658374139797016,
+        "rank_range": [
+          6,
+          6
+        ]
+      },
+      {
+        "timestamp": "1647789579833",
+        "cmdb_id": "frontend-0",
+        "span_id": "8c77f9b06a7235d5",
+        "trace_id": "ec57c3296a611d9c0f69ce150c4d1008",
+        "duration": "143995",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 3005157,
+        "signature": [
+          [
+            "hipstershop.CheckoutService/PlaceOrder",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            5
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 143.995,
+        "baseline_n": 102,
+        "baseline_median_ms": 93.9525,
+        "baseline_mad_ms": 6.612499999999997,
+        "baseline_max_ms": 6746.74,
+        "excess_ms": 50.042500000000004,
+        "mad_score": 5.104524196597356,
+        "iforest_raw_score": 0.09487540547788514,
+        "iforest_score": 0.09487540547788514,
+        "rank_range": [
+          7,
+          7
+        ]
+      },
+      {
+        "timestamp": "1647789025428",
+        "cmdb_id": "frontend-0",
+        "span_id": "63a7de0231f9dc4f",
+        "trace_id": "8eaa603ca95a99d4042c3f15cebc84fc",
+        "duration": "142268",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 6050325,
+        "signature": [
+          [
+            "hipstershop.CheckoutService/PlaceOrder",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            5
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 142.268,
+        "baseline_n": 102,
+        "baseline_median_ms": 93.9525,
+        "baseline_mad_ms": 6.612499999999997,
+        "baseline_max_ms": 6746.74,
+        "excess_ms": 48.3155,
+        "mad_score": 4.9283636672967885,
+        "iforest_raw_score": 0.08496019156532114,
+        "iforest_score": 0.08496019156532114,
+        "rank_range": [
+          8,
+          8
+        ]
+      },
+      {
+        "timestamp": "1647788814224",
+        "cmdb_id": "frontend-0",
+        "span_id": "8b66fd887ba1043d",
+        "trace_id": "ac98a1c87efe8f319411137835697870",
+        "duration": "141547",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 9101207,
+        "signature": [
+          [
+            "hipstershop.CheckoutService/PlaceOrder",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            5
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 141.547,
+        "baseline_n": 102,
+        "baseline_median_ms": 93.9525,
+        "baseline_mad_ms": 6.612499999999997,
+        "baseline_max_ms": 6746.74,
+        "excess_ms": 47.5945,
+        "mad_score": 4.854818941398867,
+        "iforest_raw_score": 0.08461114348353321,
+        "iforest_score": 0.08461114348353321,
+        "rank_range": [
+          9,
+          9
+        ]
+      },
+      {
+        "timestamp": "1647789677735",
+        "cmdb_id": "frontend-2",
+        "span_id": "ed657a2393d0d4a2",
+        "trace_id": "209a50f659e901be5ac31b15b0c9057c",
+        "duration": "140626",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 3006182,
+        "signature": [
+          [
+            "hipstershop.CheckoutService/PlaceOrder",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            5
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 140.626,
+        "baseline_n": 102,
+        "baseline_median_ms": 93.9525,
+        "baseline_mad_ms": 6.612499999999997,
+        "baseline_max_ms": 6746.74,
+        "excess_ms": 46.673500000000004,
+        "mad_score": 4.76087345935728,
+        "iforest_raw_score": 0.08187872923315592,
+        "iforest_score": 0.08187872923315592,
+        "rank_range": [
+          10,
+          10
+        ]
+      }
+    ],
+    "iforest_score": [
+      {
+        "timestamp": "1647788445308",
+        "cmdb_id": "frontend-0",
+        "span_id": "a717fe0b394499f4",
+        "trace_id": "33ac121d12f9d81f70a93424c7312544",
+        "duration": "929",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 7572694,
+        "signature": [],
+        "period": "query",
+        "duration_ms": 0.929,
+        "baseline_n": 207,
+        "baseline_median_ms": 0.181,
+        "baseline_mad_ms": 0.015999999999999986,
+        "baseline_max_ms": 0.938,
+        "excess_ms": 0.748,
+        "mad_score": 31.53287500000003,
+        "iforest_raw_score": 0.19029525895287686,
+        "iforest_score": 0.19029525895287686,
+        "rank_range": [
+          1,
+          1
+        ]
+      },
+      {
+        "timestamp": "1647788971331",
+        "cmdb_id": "frontend-2",
+        "span_id": "d520fc2d7fae1ee0",
+        "trace_id": "328e653dddef2f29d419a46895d85d12",
+        "duration": "428249",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 4524855,
+        "signature": [
+          [
+            "hipstershop.CheckoutService/PlaceOrder",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            5
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 428.249,
+        "baseline_n": 102,
+        "baseline_median_ms": 93.9525,
+        "baseline_mad_ms": 6.612499999999997,
+        "baseline_max_ms": 6746.74,
+        "excess_ms": 334.29650000000004,
+        "mad_score": 34.09950688090739,
+        "iforest_raw_score": 0.19000193831123763,
+        "iforest_score": 0.19000193831123763,
+        "rank_range": [
+          2,
+          2
+        ]
+      },
+      {
+        "timestamp": "1647788690897",
+        "cmdb_id": "frontend-0",
+        "span_id": "438d9115bb9584a8",
+        "trace_id": "52c25a4319f7ba1b221480daa98e5c46",
+        "duration": "575",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 7575139,
+        "signature": [],
+        "period": "query",
+        "duration_ms": 0.575,
+        "baseline_n": 207,
+        "baseline_median_ms": 0.181,
+        "baseline_mad_ms": 0.015999999999999986,
+        "baseline_max_ms": 0.938,
+        "excess_ms": 0.39399999999999996,
+        "mad_score": 16.609562500000013,
+        "iforest_raw_score": 0.165089629210936,
+        "iforest_score": 0.165089629210936,
+        "rank_range": [
+          3,
+          4
+        ]
+      },
+      {
+        "timestamp": "1647789603075",
+        "cmdb_id": "frontend-0",
+        "span_id": "f08d910325548265",
+        "trace_id": "b431a0f605a0146ef932be1869a6abb3",
+        "duration": "100889",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 3005464,
+        "signature": [
+          [
+            "hipstershop.AdService/GetAds",
+            1
+          ],
+          [
+            "hipstershop.CartService/GetCart",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/Convert",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            6
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 100.889,
+        "baseline_n": 1234,
+        "baseline_median_ms": 58.5025,
+        "baseline_mad_ms": 1.5610000000000035,
+        "baseline_max_ms": 53318.439,
+        "excess_ms": 42.3865,
+        "mad_score": 18.314986707238905,
+        "iforest_raw_score": 0.165089629210936,
+        "iforest_score": 0.165089629210936,
+        "rank_range": [
+          3,
+          4
+        ]
+      },
+      {
+        "timestamp": "1647788402670",
+        "cmdb_id": "frontend-2",
+        "span_id": "01c9f593f15df315",
+        "trace_id": "ab70a13a3cbfd3200bf024b708485c0b",
+        "duration": "86589",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 9097084,
+        "signature": [
+          [
+            "hipstershop.AdService/GetAds",
+            1
+          ],
+          [
+            "hipstershop.CartService/GetCart",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/Convert",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            6
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 86.589,
+        "baseline_n": 1234,
+        "baseline_median_ms": 58.5025,
+        "baseline_mad_ms": 1.5610000000000035,
+        "baseline_max_ms": 53318.439,
+        "excess_ms": 28.0865,
+        "mad_score": 12.13603090967326,
+        "iforest_raw_score": 0.1479568489672502,
+        "iforest_score": 0.1479568489672502,
+        "rank_range": [
+          5,
+          5
+        ]
+      },
+      {
+        "timestamp": "1647788860814",
+        "cmdb_id": "frontend-0",
+        "span_id": "1ec536b515095de2",
+        "trace_id": "b19ba0a3ee4ebdd66b62420507fabe34",
+        "duration": "83087",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 6048518,
+        "signature": [
+          [
+            "hipstershop.AdService/GetAds",
+            1
+          ],
+          [
+            "hipstershop.CartService/GetCart",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/Convert",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            6
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 83.087,
+        "baseline_n": 1234,
+        "baseline_median_ms": 58.5025,
+        "baseline_mad_ms": 1.5610000000000035,
+        "baseline_max_ms": 53318.439,
+        "excess_ms": 24.584500000000006,
+        "mad_score": 10.622834881486206,
+        "iforest_raw_score": 0.13949988120803808,
+        "iforest_score": 0.13949988120803808,
+        "rank_range": [
+          6,
+          7
+        ]
+      },
+      {
+        "timestamp": "1647789621943",
+        "cmdb_id": "frontend-2",
+        "span_id": "c3250362eeede9c0",
+        "trace_id": "e316271feb50bc5f50b1012a3b2ade85",
+        "duration": "451",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 9109887,
+        "signature": [],
+        "period": "query",
+        "duration_ms": 0.451,
+        "baseline_n": 207,
+        "baseline_median_ms": 0.181,
+        "baseline_mad_ms": 0.015999999999999986,
+        "baseline_max_ms": 0.938,
+        "excess_ms": 0.27,
+        "mad_score": 11.38218750000001,
+        "iforest_raw_score": 0.13949988120803808,
+        "iforest_score": 0.13949988120803808,
+        "rank_range": [
+          6,
+          7
+        ]
+      },
+      {
+        "timestamp": "1647788406495",
+        "cmdb_id": "frontend-2",
+        "span_id": "be697d83d22a9f72",
+        "trace_id": "9429da0e352d70610c247525703618b5",
+        "duration": "79862",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 4518994,
+        "signature": [
+          [
+            "hipstershop.AdService/GetAds",
+            1
+          ],
+          [
+            "hipstershop.CartService/GetCart",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/Convert",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            6
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 79.862,
+        "baseline_n": 1234,
+        "baseline_median_ms": 58.5025,
+        "baseline_mad_ms": 1.5610000000000035,
+        "baseline_max_ms": 53318.439,
+        "excess_ms": 21.359499999999997,
+        "mad_score": 9.229329115951291,
+        "iforest_raw_score": 0.13821687319079384,
+        "iforest_score": 0.13821687319079384,
+        "rank_range": [
+          8,
+          8
+        ]
+      },
+      {
+        "timestamp": "1647789294963",
+        "cmdb_id": "frontend-2",
+        "span_id": "93679dc2b559a0bd",
+        "trace_id": "35ed7f1e058ead5ddb3348cdf21e59df",
+        "duration": "81644",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 4528422,
+        "signature": [
+          [
+            "hipstershop.AdService/GetAds",
+            1
+          ],
+          [
+            "hipstershop.CartService/GetCart",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/Convert",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            6
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 81.644,
+        "baseline_n": 1234,
+        "baseline_median_ms": 58.5025,
+        "baseline_mad_ms": 1.5610000000000035,
+        "baseline_max_ms": 53318.439,
+        "excess_ms": 23.141500000000008,
+        "mad_score": 9.9993220691864,
+        "iforest_raw_score": 0.13783180455391347,
+        "iforest_score": 0.13783180455391347,
+        "rank_range": [
+          9,
+          11
+        ]
+      },
+      {
+        "timestamp": "1647789596340",
+        "cmdb_id": "frontend-2",
+        "span_id": "34f0223e6012bd42",
+        "trace_id": "35f4187d2e3da2232f09635d884a1f95",
+        "duration": "414",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 3005369,
+        "signature": [],
+        "period": "query",
+        "duration_ms": 0.414,
+        "baseline_n": 207,
+        "baseline_median_ms": 0.181,
+        "baseline_mad_ms": 0.015999999999999986,
+        "baseline_max_ms": 0.938,
+        "excess_ms": 0.23299999999999998,
+        "mad_score": 9.822406250000007,
+        "iforest_raw_score": 0.13783180455391347,
+        "iforest_score": 0.13783180455391347,
+        "rank_range": [
+          9,
+          11
+        ]
+      }
+    ]
+  },
+  "evaluations": [
+    {
+      "timestamp": "1647788971331",
+      "cmdb_id": "frontend-2",
+      "span_id": "d520fc2d7fae1ee0",
+      "trace_id": "328e653dddef2f29d419a46895d85d12",
+      "duration": "428249",
+      "type": "http",
+      "status_code": "0",
+      "operation_name": "hipstershop.Frontend/Recv.",
+      "parent_span": "",
+      "source_record": 4524855,
+      "signature": [
+        [
+          "hipstershop.CheckoutService/PlaceOrder",
+          1
+        ],
+        [
+          "hipstershop.CurrencyService/GetSupportedCurrencies",
+          1
+        ],
+        [
+          "hipstershop.ProductCatalogService/GetProduct",
+          5
+        ],
+        [
+          "hipstershop.RecommendationService/ListRecommendations",
+          1
+        ]
+      ],
+      "period": "query",
+      "duration_ms": 428.249,
+      "baseline_n": 102,
+      "baseline_median_ms": 93.9525,
+      "baseline_mad_ms": 6.612499999999997,
+      "baseline_max_ms": 6746.74,
+      "excess_ms": 334.29650000000004,
+      "mad_score": 34.09950688090739,
+      "iforest_raw_score": 0.19000193831123763,
+      "iforest_score": 0.19000193831123763,
+      "ranks": {
+        "mad_score": [
+          1,
+          1
+        ],
+        "duration_ms": [
+          1,
+          1
+        ],
+        "iforest_score": [
+          2,
+          2
+        ]
+      }
+    }
+  ],
+  "dependency_paths": [
+    {
+      "root": {
+        "timestamp": "1647788445308",
+        "cmdb_id": "frontend-0",
+        "span_id": "a717fe0b394499f4",
+        "trace_id": "33ac121d12f9d81f70a93424c7312544",
+        "duration": "929",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 7572694,
+        "signature": [],
+        "period": "query",
+        "duration_ms": 0.929,
+        "baseline_n": 207,
+        "baseline_median_ms": 0.181,
+        "baseline_mad_ms": 0.015999999999999986,
+        "baseline_max_ms": 0.938,
+        "excess_ms": 0.748,
+        "mad_score": 31.53287500000003,
+        "iforest_raw_score": 0.19029525895287686,
+        "iforest_score": 0.19029525895287686
+      },
+      "largest_direct_child": null
+    },
+    {
+      "root": {
+        "timestamp": "1647788971331",
+        "cmdb_id": "frontend-2",
+        "span_id": "d520fc2d7fae1ee0",
+        "trace_id": "328e653dddef2f29d419a46895d85d12",
+        "duration": "428249",
+        "type": "http",
+        "status_code": "0",
+        "operation_name": "hipstershop.Frontend/Recv.",
+        "parent_span": "",
+        "source_record": 4524855,
+        "signature": [
+          [
+            "hipstershop.CheckoutService/PlaceOrder",
+            1
+          ],
+          [
+            "hipstershop.CurrencyService/GetSupportedCurrencies",
+            1
+          ],
+          [
+            "hipstershop.ProductCatalogService/GetProduct",
+            5
+          ],
+          [
+            "hipstershop.RecommendationService/ListRecommendations",
+            1
+          ]
+        ],
+        "period": "query",
+        "duration_ms": 428.249,
+        "baseline_n": 102,
+        "baseline_median_ms": 93.9525,
+        "baseline_mad_ms": 6.612499999999997,
+        "baseline_max_ms": 6746.74,
+        "excess_ms": 334.29650000000004,
+        "mad_score": 34.09950688090739,
+        "iforest_raw_score": 0.19000193831123763,
+        "iforest_score": 0.19000193831123763
+      },
+      "largest_direct_child": {
+        "timestamp": "1647788971331",
+        "cmdb_id": "frontend-2",
+        "span_id": "1f5b3af5678bf1ca",
+        "trace_id": "328e653dddef2f29d419a46895d85d12",
+        "duration": "386142",
+        "type": "rpc",
+        "status_code": "0",
+        "operation_name": "hipstershop.CheckoutService/PlaceOrder",
+        "parent_span": "d520fc2d7fae1ee0",
+        "source_record": 6049664
+      },
+      "child_fraction_of_root": 0.9016763611823962,
+      "linked_receivers": [
+        {
+          "timestamp": "1647788971332",
+          "cmdb_id": "checkoutservice-2",
+          "span_id": "6b68c1e69127a30d",
+          "trace_id": "328e653dddef2f29d419a46895d85d12",
+          "duration": "384198",
+          "type": "rpc",
+          "status_code": "0",
+          "operation_name": "hipstershop.CheckoutService/PlaceOrder",
+          "parent_span": "1f5b3af5678bf1ca",
+          "source_record": 2998687
+        }
+      ],
+      "recorded_span_count": 37
+    }
+  ],
+  "timings_seconds": {
+    "extraction": 16.34533333298168,
+    "scoring": 0.10039474998484366,
+    "full_trace_retrieval": 15.57328562499606
+  }
+}

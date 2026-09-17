@@ -1,3 +1,15 @@
 # Track 1 dataset (downloaded separately; too large for Git)
 /data/track-1/
+/data/experiments/
+__pycache__/
+
+# Empty-output harness artifacts and local tool caches
+/demo-output/
+/harness-output/
+/out/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local environment secrets
 .env

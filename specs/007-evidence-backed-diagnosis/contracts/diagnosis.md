@@ -10,6 +10,14 @@ Operation arguments are validated against the declared inventory, scope, policy 
 
 ## Artifacts and states
 
+The [feature 011 loop contract](../../011-completion-aware-investigation/contracts/investigation.md)
+refines the investigation boundary: assess initial evidence, choose one useful
+operation, reassess its result, and preserve the reason for termination. Its
+ordered assessments, gate outcomes, evidence revisions, progress counters,
+unassessed observations and `investigation_stop_reason` extend `diagnosis.json`.
+Keep any `assembly_failure_reason` separate so finalization cannot overwrite an
+earlier blocked or budget exit. These fields do not alter benchmark serialization.
+
 Retain feature 002's `predictions.csv`, `evidence/<row_id>.md`, and `usage.jsonl`, plus feature 004's scope/findings artifacts. Proposed additional artifacts under the output root:
 
 - `cases/<row_id>/operations.jsonl`: operation ID, parent question/hypothesis, type, validated scope/arguments, policy/source identities, result references, coverage, elapsed time, status and stop reason. Record failed attempts as well as successful ones; redact credentials.

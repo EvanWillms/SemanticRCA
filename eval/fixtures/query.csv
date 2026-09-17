@@ -1,0 +1,5 @@
+row_id,instruction
+9,"Synthetic harness query 9: first line.
+Second line confirms multiline CSV parsing."
+42,"Synthetic harness query 42: first line.
+Second line confirms a non-contiguous ID."

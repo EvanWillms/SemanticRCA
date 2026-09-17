@@ -5,7 +5,7 @@ date: 2026-09-17
 
 # Define failure by the Track 1 benchmark contract
 
-**A failure is a labelled incident in the supplied benchmark, represented by its occurrence time, root-cause component, and fault reason.** Occurrence time is the fault's start time. The complete SymbolicRCA deliverable reconstructs those incidents from telemetry and explains its evidence; the first experiment tests only whether the correct component reaches the shortlist.
+**A failure is a labelled incident in the supplied benchmark, represented by its occurrence time, root-cause component, and fault reason.** Occurrence time is the fault's start time. The complete SymbolicRCA deliverable reconstructs the requested fields of those incidents from telemetry and explains its evidence. Each task requests a projection of the incident tuple; multiple failures require separate, correctly associated tuples.
 
 ## Basis for the decision
 
@@ -19,4 +19,6 @@ MantisGrid's [public product description](https://www.mantisgrid.ai/) (checked 2
 
 We therefore reject requiring independent outage or SLO-breach detection before diagnosing a supplied incident. Fault labels establish what must be diagnosed; they remain evaluator-only and are not ranking inputs. Telemetry supports the inferred diagnosis and its explanation, not a new decision about whether the designated incident counts as a failure.
 
-Component recall@1/@3 measures only a necessary stage of diagnosis. A successful shortlist experiment does not demonstrate correct onset, fault reason, complete incident reconstruction, or a completed submission. Full diagnosis and evidence obligations remain in the [SpecKit goal](../../.specify/memory/constitution.md); the bounded experiment is specified in [experiment 001](../../specs/001-candidate-recall-experiment/spec.md).
+The prompt provides investigation scope, not diagnostic evidence. Its deployment, time window, failure count, and requested fields may enter the agent; `scoring_points` and derived answer labels may enter only evaluation. See the [diagnostic contract](../../specs/001-candidate-recall-experiment/contracts/incident-diagnosis.md) for task projections and output precision.
+
+Component recall@1/@3 measures only a necessary stage of diagnosis. A successful shortlist experiment does not demonstrate correct onset, fault reason, complete incident reconstruction, or a completed submission. Full diagnosis and evidence obligations remain in the [SpecKit goal](../../.specify/memory/constitution.md). [ADR 0002](0002-descriptive-semantic-compression.md) revises the first experiment to descriptive compression; candidate recall is deferred.

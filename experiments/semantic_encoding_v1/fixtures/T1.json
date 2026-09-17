@@ -1,0 +1,90 @@
+{
+  "context": {
+    "business_outcome": "unknown",
+    "clock": "authored synthetic common clock",
+    "deployment": "synthetic-a1",
+    "duration_unit": "ms",
+    "entity_namespace": "synthetic-a1",
+    "timestamp_unit": "ms"
+  },
+  "fixture": "T1",
+  "records": [
+    {
+      "cmdb_id": "catalog#1",
+      "duration": "2",
+      "operation_name": "synthetic.Catalog/GetProduct",
+      "parent_span": "31bb",
+      "span_id": "00cd",
+      "status_code": "0",
+      "timestamp": "1016",
+      "trace_id": "bb02",
+      "type": "rpc"
+    },
+    {
+      "cmdb_id": "cart#1",
+      "duration": "6",
+      "operation_name": "synthetic.Cart/GetCart",
+      "parent_span": "a099",
+      "span_id": "fe20",
+      "status_code": "0",
+      "timestamp": "1003",
+      "trace_id": "bb02",
+      "type": "rpc"
+    },
+    {
+      "cmdb_id": "catalog#2",
+      "duration": "3",
+      "operation_name": "synthetic.Catalog/GetProduct",
+      "parent_span": "31bb",
+      "span_id": "921f",
+      "status_code": "0",
+      "timestamp": "1020",
+      "trace_id": "bb02",
+      "type": "rpc"
+    },
+    {
+      "cmdb_id": "frontend#1",
+      "duration": "120",
+      "operation_name": "synthetic.Frontend/HandleRequest",
+      "parent_span": "",
+      "span_id": "31bb",
+      "status_code": "0",
+      "timestamp": "1000",
+      "trace_id": "bb02",
+      "type": "http"
+    },
+    {
+      "cmdb_id": "cart#1",
+      "duration": "1",
+      "operation_name": "synthetic.Storage/HGET",
+      "parent_span": "fe20",
+      "span_id": "006a",
+      "status_code": "Ok",
+      "timestamp": "1004",
+      "trace_id": "bb02",
+      "type": "db"
+    },
+    {
+      "cmdb_id": "checkout#1",
+      "duration": "8",
+      "operation_name": "synthetic.Cart/GetCart",
+      "parent_span": "31bb",
+      "span_id": "a099",
+      "status_code": "0",
+      "timestamp": "1002",
+      "trace_id": "bb02",
+      "type": "rpc"
+    },
+    {
+      "cmdb_id": "catalog#1",
+      "duration": "2",
+      "operation_name": "synthetic.Catalog/GetProduct",
+      "parent_span": "31bb",
+      "span_id": "be83",
+      "status_code": "0",
+      "timestamp": "1012",
+      "trace_id": "bb02",
+      "type": "rpc"
+    }
+  ]
+}

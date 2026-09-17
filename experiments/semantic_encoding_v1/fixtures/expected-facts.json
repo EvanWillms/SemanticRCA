@@ -1,0 +1,231 @@
+{
+  "annotation": "Authored expectations before encoder implementation; requires separate agent review, not external human validation.",
+  "contrasts": {
+    "T0_T1_equivalent": true,
+    "T0_T2_equivalent": false,
+    "added_edge": [
+      "8af0",
+      "0ab7"
+    ],
+    "added_node": [
+      "0ab7",
+      "catalog.get_product",
+      "8af0",
+      "catalog#1"
+    ],
+    "catalog_count_delta": 1,
+    "edge_count_delta": 1,
+    "span_count_delta": 1
+  },
+  "fixtures": {
+    "T0": {
+      "counts": {
+        "cart.get": 2,
+        "catalog.get_product": 3,
+        "db.hget": 1,
+        "request.handle": 1
+      },
+      "distinct_pairs": 19,
+      "edge_count": 6,
+      "nodes": [
+        [
+          "8af0",
+          "request.handle",
+          null,
+          "frontend#1"
+        ],
+        [
+          "9ce1",
+          "cart.get",
+          "8af0",
+          "checkout#1"
+        ],
+        [
+          "2bd2",
+          "cart.get",
+          "9ce1",
+          "cart#1"
+        ],
+        [
+          "7ac3",
+          "db.hget",
+          "2bd2",
+          "cart#1"
+        ],
+        [
+          "4de4",
+          "catalog.get_product",
+          "8af0",
+          "catalog#1"
+        ],
+        [
+          "1ef5",
+          "catalog.get_product",
+          "8af0",
+          "catalog#1"
+        ],
+        [
+          "6fa6",
+          "catalog.get_product",
+          "8af0",
+          "catalog#2"
+        ]
+      ],
+      "same_entity_pairs": [
+        [
+          "2bd2",
+          "7ac3"
+        ],
+        [
+          "4de4",
+          "1ef5"
+        ]
+      ],
+      "span_count": 7
+    },
+    "T1": {
+      "counts": {
+        "cart.get": 2,
+        "catalog.get_product": 3,
+        "db.hget": 1,
+        "request.handle": 1
+      },
+      "distinct_pairs": 19,
+      "edge_count": 6,
+      "nodes": [
+        [
+          "31bb",
+          "request.handle",
+          null,
+          "frontend#1"
+        ],
+        [
+          "a099",
+          "cart.get",
+          "31bb",
+          "checkout#1"
+        ],
+        [
+          "fe20",
+          "cart.get",
+          "a099",
+          "cart#1"
+        ],
+        [
+          "006a",
+          "db.hget",
+          "fe20",
+          "cart#1"
+        ],
+        [
+          "be83",
+          "catalog.get_product",
+          "31bb",
+          "catalog#1"
+        ],
+        [
+          "00cd",
+          "catalog.get_product",
+          "31bb",
+          "catalog#1"
+        ],
+        [
+          "921f",
+          "catalog.get_product",
+          "31bb",
+          "catalog#2"
+        ]
+      ],
+      "same_entity_pairs": [
+        [
+          "fe20",
+          "006a"
+        ],
+        [
+          "be83",
+          "00cd"
+        ]
+      ],
+      "span_count": 7
+    },
+    "T2": {
+      "counts": {
+        "cart.get": 2,
+        "catalog.get_product": 4,
+        "db.hget": 1,
+        "request.handle": 1
+      },
+      "distinct_pairs": 24,
+      "edge_count": 7,
+      "nodes": [
+        [
+          "8af0",
+          "request.handle",
+          null,
+          "frontend#1"
+        ],
+        [
+          "9ce1",
+          "cart.get",
+          "8af0",
+          "checkout#1"
+        ],
+        [
+          "2bd2",
+          "cart.get",
+          "9ce1",
+          "cart#1"
+        ],
+        [
+          "7ac3",
+          "db.hget",
+          "2bd2",
+          "cart#1"
+        ],
+        [
+          "4de4",
+          "catalog.get_product",
+          "8af0",
+          "catalog#1"
+        ],
+        [
+          "1ef5",
+          "catalog.get_product",
+          "8af0",
+          "catalog#1"
+        ],
+        [
+          "6fa6",
+          "catalog.get_product",
+          "8af0",
+          "catalog#2"
+        ],
+        [
+          "0ab7",
+          "catalog.get_product",
+          "8af0",
+          "catalog#1"
+        ]
+      ],
+      "same_entity_pairs": [
+        [
+          "2bd2",
+          "7ac3"
+        ],
+        [
+          "4de4",
+          "1ef5"
+        ],
+        [
+          "4de4",
+          "0ab7"
+        ],
+        [
+          "1ef5",
+          "0ab7"
+        ]
+      ],
+      "span_count": 8
+    }
+  }
+}

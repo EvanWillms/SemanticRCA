@@ -24,4 +24,11 @@ These are planned checks, not executed tests. Use independently authored expecta
 
 ## Constitution review
 
+Completion-loop integration also requires
+[feature 011 cases L01–L18](../011-completion-aware-investigation/acceptance.md).
+They refine FR-003/008/009/013 and SC-003 here, including zero-tool completion,
+rejected sufficiency, useful continuation, inability, non-progress, bounded
+provider/assessment repair and unassessed final observations. Passing that
+controlled matrix does not replace H1–H5 diagnosis checks or R1 runtime acceptance.
+
 Evidence-first diagnosis: H1–H5. Bounded data access: O1–O2. Provider/routing restrictions and measured usage: O2/R1. Blind reproducibility and independent scoring: E1–E5. Submission compatibility: A1–A3/R2. The feature does not replace the constitution's repeated routed-versus-single-model held-out evaluation or certify diagnostic accuracy. Feature 002 and the project maintainer retain those delivery obligations.

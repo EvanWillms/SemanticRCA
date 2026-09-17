@@ -1,5 +1,18 @@
 # Combined offline workflow demo
 
+For an input dataset and query CSV, run:
+
+```sh
+python3.12 scripts/discover.py --dataset /path/to/dataset \
+  --queries /path/to/query.csv --out /tmp/my-findings
+```
+
+The command prints source-backed observed departures and saves `findings.md`
+alongside the complete case artifacts. It uses real discovery results; a
+finding describes a measured change and does not by itself establish causality.
+Repeated cases reuse the prepared trace view within the run, with preparation
+identity and time recorded in `discovery-run.json`.
+
 From the repository root, choose a new output directory:
 
 ```sh

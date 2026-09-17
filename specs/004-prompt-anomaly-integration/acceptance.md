@@ -1,15 +1,15 @@
 # Acceptance matrix: prompt-to-anomaly integration
 
-These checks are requirements for subsequent implementation. No detector, parser or runtime acceptance test was executed for this documentation task.
+These checks are requirements for subsequent implementation. Initial selection/comparison rules are defined in [discovery-policy.md](contracts/discovery-policy.md); they are project defaults, not official detector requirements. No detector, parser or runtime acceptance test was executed for this documentation task.
 
 | Case | Independent fixture or action | Required result | Requirements |
 |---|---|---|---|
 | P1 | Review all 70 public instructions without labels; manually author scope expectations independently of implementation | Exact deployment/window/count/projection for every row and all seven types | FR-001–003 |
 | P2 | Equivalent whitespace, wording already present in public prompts, another date/deployment and valid midnight transition | Same semantic scope with original extraction provenance; no fixed-row/date assumptions | FR-001–003 |
 | P3 | Missing count, malformed date, impossible window, metadata/projection conflict, unsupported instruction | Explicit scope failure before any telemetry access; valid following case proceeds | FR-002/003/012 |
-| D1 | Authored matched traces with known duration changes, added/removed children and multiplicity-only change | Correct empirical differences; structural changes/unmatched requests retained; no causal label | FR-004/006/008/009 |
+| D1 | Authored matched traces with known duration changes, added/removed children and multiplicity-only change under track1-discovery-v1 rules | Correct empirical differences; structural changes/unmatched requests retained; no causal label | FR-004/006/008/009 |
 | D2 | Sparse/constant/zero/incompatible/contaminated references and provisionally known units | Qualified or unavailable results per declared policy; no fabricated numeric score or healthy reference claim | FR-006/008/009 |
-| D3 | Pod/node/service metric change with normal or missing frontend traces | Source-grounded resource candidate independent of frontend trace anomaly shortlist | FR-007/009 |
+| D3 | Pod/node/service metric change with normal or missing frontend traces; isolated spike omitted by the 120-value display sample | Source-grounded per-sample candidate independent of frontend trace shortlist and retained despite display reduction | FR-007/009 |
 | D4 | Targeted log follow-up and ambiguous service/replica/host relationship | Link/question/source retained; no unsupported exact request join; uninspected families listed | FR-004/007/009 |
 | D5 | Two independent changes sharing a component, one repeated correlated observation, and a one-failure prompt | No forced failure-count partition, no silent candidate loss or false independence | FR-009/010 |
 | I1 | Official three-flag invocation on small Track 1-shaped corpus with IDs 9/42 | Joined scope/findings/evidence, blank prediction rows, zero usage and truthful discovery status | FR-010/011 |
@@ -19,7 +19,7 @@ These checks are requirements for subsequent implementation. No detector, parser
 | R1 | Cold source preparation and repeated lookup; change source/policy, interrupt preparation | Correct compatible reuse or rebuild; no false completeness or source escape | FR-004/005/014 |
 | R2 | Forced stage deadline/volume exhaustion followed by another valid case | Partial status, retained coverage/stop reason, previous checkpoint preserved and final nonzero exit | FR-010/012/013 |
 | R3 | Fresh isolated Docker build/run, 20 declared development cases, 2 CPUs/8 GB, network disabled | No local-index prerequisite; runtime caps honored including preparation; measured completion/memory/time | FR-005/011/013 |
-| R4 | Replay identical inputs/policy and audit every source pointer in the controlled corpus | Same substantive results and reproducible provenance; no labels or exposed cases misrepresented as held-out | FR-009/014 |
+| R4 | Replay completed runs with identical inputs/policy/work limits; replay forced deadline runs at recorded batch boundaries; audit every source pointer | Equal completed findings and equal partial findings at identical replay boundaries; live deadline variation retains explicit coverage; no labels or exposed cases misrepresented as held-out | FR-009/014 |
 
 ## Constitution review
 

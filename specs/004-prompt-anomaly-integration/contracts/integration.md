@@ -35,11 +35,16 @@ Prepared views and other temporary outputs remain beneath --out and must be decl
 
 Interpretation: `interpreted` or `unsupported` with reasons. Discovery: `completed`, `partial`, `unavailable`, or `not_run`. Comparison eligibility remains the independent `eligible`/`qualified`/`unavailable` dimension from feature 003. An empty candidate list may be completed if declared discovery ran with adequate coverage; it never asserts no failure.
 
-A fully processed run with completed cases, including qualified findings, exits zero. Any unsupported scope, partial/unavailable discovery or unexpected case failure produces a nonzero final exit and explicit mixed/failure status while retaining successful cases. Global malformed CSV/invalid path/nonempty output is a preflight failure before analysis. Failed output persistence terminates visibly and preserves earlier published rows; durable storage failure cannot promise a new error artifact. No in-place resume is introduced by this feature.
+A fully processed run with completed cases, including qualified findings, or a valid empty query inventory exits zero. Any nonempty scope-only run remains not_run and exits nonzero. Numeric project exit codes are defined in [prompt-input.md](prompt-input.md#exit-behavior); Track 1 itself does not prescribe them. Any unsupported scope, partial/unavailable discovery or unexpected case failure produces a nonzero final exit and explicit mixed/failure status while retaining successful cases. Global malformed CSV/invalid path/nonempty output is a preflight failure before analysis. Failed output persistence terminates visibly and preserves earlier published rows; durable storage failure cannot promise a new error artifact. No in-place resume is introduced by this feature.
 
 Per-case analysis artifacts and evidence must be persisted before publishing that case's prediction checkpoint. Interrupted/failed work is never marked completed. Best-effort cleanup cannot be described as a transaction spanning every file.
 
 ## Discovery channels and selection
+
+[discovery-policy.md](discovery-policy.md) binds the initial selection, reference,
+comparison and packet rules. These are versioned project choices; official Track 1
+docs define schemas and judging obligations, not an anomaly-detection algorithm.
+
 
 Trace discovery reports empirical duration departure and structural changes separately. Metric discovery reports relevant scoped resource changes independently of frontend trace selection. Targeted logs report observations answering a declared follow-up question; no log detector-training subsystem is included. Each supplied family is recorded as inspected, unavailable, or not inspected with a reason; not inspected does not mean normal.
 

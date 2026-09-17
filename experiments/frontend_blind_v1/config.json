@@ -1,0 +1,58 @@
+{
+  "version": "frontend-blind-v1",
+  "query_window_ms": 1800000,
+  "reference_window_ms": 1800000,
+  "initial_margin_ms": 60000,
+  "cohort_minimum": 20,
+  "max_trace_depth": 8,
+  "inspection_prefixes": [
+    1,
+    3,
+    5,
+    10
+  ],
+  "max_union_traces": 30,
+  "detectors": {
+    "arm_a": {
+      "name": "duration",
+      "policy": "descending raw frontend duration"
+    },
+    "arm_b": {
+      "name": "packaged_mad",
+      "package": "pyod",
+      "version": "3.6.6",
+      "policy": "per-reference-cohort signed slow-only MAD"
+    },
+    "arm_c": {
+      "name": "packaged_iforest",
+      "package": "pyod",
+      "version": "3.6.6",
+      "estimators": 100,
+      "seed": 42,
+      "max_samples": "auto",
+      "n_jobs": 1,
+      "policy": "pooled signed MAD, positive departures"
+    }
+  },
+  "allowed_inputs": [
+    "docs/research/experiments/frontend-blind-v1/scope.csv",
+    "data/track-1/query.csv",
+    "data/track-1/telemetry/*/trace/trace_span.csv",
+    "data/track-1/telemetry/*/metric/*.csv (bounded Stage M only)",
+    "data/track-1/telemetry/*/log/*.csv (bounded Stage M only)"
+  ],
+  "investigation": {
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "high",
+    "fork_turns": "none",
+    "case_budget_seconds": 900,
+    "maximum_active_investigators": 3,
+    "initial_components": 5,
+    "single_expansion_components": 5,
+    "metric_structured_calls": 20,
+    "log_structured_calls": 10,
+    "metric_series_per_response": 50,
+    "representative_values_per_series_total": 120,
+    "log_records_per_response": 200
+  }
+}

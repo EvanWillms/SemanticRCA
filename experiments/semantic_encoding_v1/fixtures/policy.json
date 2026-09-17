@@ -1,0 +1,26 @@
+{
+  "equivalence": "Rooted unordered tree with exact operation and recording-entity colors; trace/span IDs ignored only for equivalence. Entity names are exact and never inferred or renamed.",
+  "hypothesis": "Incidental trace/span ID renaming and storage order preserve structure; one added catalog child remains visible.",
+  "pass_rule": "All authored facts recover; provenance resolves separately; T0/T1 equivalent; T2 adds exactly one catalog#1 child and edge with all prior observations unchanged; constant output fails.",
+  "pattern": "No motifs: one node per observed span, one edge per parent reference.",
+  "retained": [
+    "operation identity",
+    "parent references",
+    "exact occurrence counts",
+    "recording entity identity and all pairwise equality/distinctness",
+    "raw operation/type/status/timing strings"
+  ],
+  "scope": "S01 only; no models or real telemetry",
+  "units": {
+    "duration": "synthetic ms",
+    "timestamp": "synthetic ms"
+  },
+  "unknowns": [
+    "business_outcome",
+    "status_interpretation",
+    "interaction_role",
+    "backend_target",
+    "instrumentation_completeness"
+  ],
+  "version": "s01-structural-v1"
+}

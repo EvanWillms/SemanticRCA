@@ -1,0 +1,2 @@
+{"run_dir": "/Users/nonadmin/Development/SymbolicRCA/data/experiments/semantic-encoding-v1/S01/20260917-s01-001", "decision": "supported_on_fixture", "first_differing_fact": null}
+exit_status=0

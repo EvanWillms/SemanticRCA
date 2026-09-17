@@ -20,6 +20,13 @@ Scope is the supplied Track 1 Market schemas and seven task projections, includi
 
 ## User Scenarios & Testing
 
+The completion gate, useful continuation, inability assessment and bounded toy
+profile are specified in [feature 011](../011-completion-aware-investigation/spec.md)
+under [ADR 0016](../../docs/adr/0016-completion-aware-investigation.md). They refine
+FR-003/008/009/013 here; this feature retains incident selection, legal best guesses,
+serialization and scoring authority. Loop acceptance is an integration prerequisite,
+not a substitute for the diagnosis and release gates below.
+
 ### User Story 1 — Compare explanations from evidence (Priority: P1)
 
 As an investigator, I need to distinguish possible initiating faults from their observed effects and understand which observations favor each explanation.
@@ -48,6 +55,7 @@ As an evaluator, I need unattended investigation to make progress through declar
 1. **Given** a distinguishing question, **when** follow-up is requested, **then** the operation specifies its scope and policy, respects remaining limits, and returns source-linked observations with coverage.
 2. **Given** an invalid operation, malformed model output or unavailable provider, **when** recovery runs, **then** retries are bounded and recorded, permitted fallbacks preserve the same evidence contract, and finalization capacity is reserved.
 3. **Given** exhausted capacity, **when** the case stops, **then** it retains findings and a stop reason, emits a legal qualified best guess if possible, and permits later cases to proceed.
+4. **Given** sufficient initial evidence or a completed follow-up, **when** return is considered, **then** the feature 011 completion gate assesses the requested conclusion; forced-limit and inability exits remain distinct from evidence sufficiency.
 
 ### User Story 3 — Receive the requested incident answers (Priority: P1)
 

@@ -1,0 +1,16 @@
+test_entity_binding_mutation_is_detected_without_count_or_edge_change (experiments.semantic_encoding_v1.test_s01.S01CodecTests.test_entity_binding_mutation_is_detected_without_count_or_edge_change) ... ok
+test_frozen_fixtures_recover_all_structural_facts (experiments.semantic_encoding_v1.test_s01.S01CodecTests.test_frozen_fixtures_recover_all_structural_facts) ... ok
+test_missing_binding_and_parent_are_rejected_at_encode_boundary (experiments.semantic_encoding_v1.test_s01.S01CodecTests.test_missing_binding_and_parent_are_rejected_at_encode_boundary) ... ok
+test_missing_occurrence_fails_frozen_t2_expectations (experiments.semantic_encoding_v1.test_s01.S01CodecTests.test_missing_occurrence_fails_frozen_t2_expectations) ... ok
+test_parent_edge_mutation_is_detected_without_count_or_entity_change (experiments.semantic_encoding_v1.test_s01.S01CodecTests.test_parent_edge_mutation_is_detected_without_count_or_entity_change) ... ok
+test_provenance_corruption_is_reported_without_raising (experiments.semantic_encoding_v1.test_s01.S01CodecTests.test_provenance_corruption_is_reported_without_raising) ... ok
+test_quality_checks_cover_root_marker_and_resolved_parents (experiments.semantic_encoding_v1.test_s01.S01CodecTests.test_quality_checks_cover_root_marker_and_resolved_parents) ... ok
+test_run_directory_rejects_reuse_and_creates_missing_parents (experiments.semantic_encoding_v1.test_s01.S01CodecTests.test_run_directory_rejects_reuse_and_creates_missing_parents) ... ok
+test_t1_identifier_and_storage_order_changes_preserve_structure (experiments.semantic_encoding_v1.test_s01.S01CodecTests.test_t1_identifier_and_storage_order_changes_preserve_structure) ... ok
+test_t2_added_occurrence_and_edge_remain_visible (experiments.semantic_encoding_v1.test_s01.S01CodecTests.test_t2_added_occurrence_and_edge_remain_visible) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.005s
+
+OK
+exit_status=0

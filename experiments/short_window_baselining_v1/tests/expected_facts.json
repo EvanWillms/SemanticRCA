@@ -1,0 +1,130 @@
+{
+  "fixture_version": "short-window-baselining-v1-contracts-2026-09-17",
+  "source": "docs/research/experiments/short-window-baselining.md",
+  "provisional_units": "timestamp_ms; duration_raw interpreted as microseconds and converted to duration_ms",
+  "fixtures": {
+    "root": {
+      "trace_id": "trace-a",
+      "span_id": "root-a",
+      "cmdb_id": "frontend-0",
+      "operation_name": "Frontend/Recv.",
+      "type": "http",
+      "children": [
+        {"operation_name": "Checkout/PlaceOrder", "type": "rpc"},
+        {"operation_name": "Cart/GetCart", "type": "rpc"},
+        {"operation_name": "Cart/GetCart", "type": "rpc"}
+      ]
+    },
+    "unknown_structure_root": {
+      "trace_id": "trace-b",
+      "span_id": "root-b",
+      "cmdb_id": "frontend-0",
+      "operation_name": "Frontend/Recv.",
+      "type": "http",
+      "children": null,
+      "retrieval_state": "unknown_structure"
+    },
+    "empty_structure_root": {
+      "trace_id": "trace-c",
+      "span_id": "root-c",
+      "cmdb_id": "frontend-0",
+      "operation_name": "Frontend/Recv.",
+      "type": "http",
+      "children": [],
+      "retrieval_state": "known_empty"
+    },
+    "duration_reference_ms": [80.0, 100.0, 120.0],
+    "duration_observed_ms": 100.0,
+    "constant_reference_ms": [42.0, 42.0, 42.0, 42.0],
+    "zero_reference_ms": [0.0, 0.0, 0.0, 0.0]
+  },
+  "expected_facts": {
+    "signatures": {
+      "C0": ["Frontend/Recv.", "http"],
+      "C1": [
+        ["Cart/GetCart", "rpc"],
+        ["Checkout/PlaceOrder", "rpc"]
+      ],
+      "C2": [
+        [["Cart/GetCart", "rpc"], 2],
+        [["Checkout/PlaceOrder", "rpc"], 1]
+      ],
+      "C1_add_novel_child": "changes the C1 key and leaves the observation visible as an unmatched cohort",
+      "C2_multiplicity_only": "changes the C2 key while C1 remains unchanged",
+      "unknown_structure": "is distinct from a known empty direct-child set"
+    },
+    "duration_intervention": {
+      "membership_unchanged": true,
+      "reference_median_ms": 100.0,
+      "baseline": {"observed_ms": 100.0, "absolute_excess_ms": 0.0},
+      "query_plus_25_percent": {"observed_ms": 125.0, "absolute_excess_ms": 25.0},
+      "query_plus_50_percent": {"observed_ms": 150.0, "absolute_excess_ms": 50.0},
+      "query_plus_100_percent": {"observed_ms": 200.0, "absolute_excess_ms": 100.0},
+      "ratio_denominator": "positive_reference_median"
+    },
+    "undefined_values": {
+      "constant_reference_median_ms": 42.0,
+      "constant_reference_mad_ms": 0.0,
+      "constant_reference_observed_ms": 100.0,
+      "constant_reference_ratio_is_defined": true,
+      "constant_reference_standardized_departure": null,
+      "constant_reference_absolute_excess_is_defined": true,
+      "zero_reference_median_ms": 0.0,
+      "zero_reference_ratio": null
+    },
+    "support_rule": {
+      "minimum_count_for_10_minute_lookback": 20,
+      "minimum_occupied_minutes_for_10_minute_lookback": 5,
+      "minimum_occupied_minutes_for_5_minute_lookback": 3,
+      "one_minute_concentration_over_half": "fails support",
+      "count_10": "unavailable",
+      "count_20_distributed": "supported",
+      "insufficient_original_support": "remains unavailable after thinning"
+    },
+    "determinism": {
+      "membership_hash_changes_after_reorder": false,
+      "comparison_values_change_after_id_remap": false,
+      "source_provenance_remains_resolvable": true,
+      "bootstrap_seed": 42,
+      "bootstrap_replicates": 200
+    },
+    "visibility": {
+      "unmatched_observations_are_counted": true,
+      "unknown_structure_is_counted": true,
+      "duplicate_composite_identity_is_a_coverage_reason": true,
+      "ambiguous_root_is_a_coverage_reason": true,
+      "no_silent_losses": true,
+      "no_invented_matches": true
+    },
+    "boundary": {
+      "reference_interval": "[T-L,T)",
+      "query_interval": "[T,T+5m)",
+      "reference_endpoint_reaching_T_is_excluded": true,
+      "boundary_exclusions_are_counted": true,
+      "query_duration_is_not_truncated_at_query_end": true
+    }
+  },
+  "intervention_manifest": [
+    {"name": "reorder_and_rename_ids", "seed": null, "expected": "same_memberships_and_numerical_comparisons_after_inverse_id_mapping"},
+    {"name": "query_duration_plus_25_percent", "seed": null, "expected": "membership_unchanged_and_excess_plus_25ms"},
+    {"name": "query_duration_plus_50_percent", "seed": null, "expected": "membership_unchanged_and_excess_plus_50ms"},
+    {"name": "query_duration_plus_100_percent", "seed": null, "expected": "membership_unchanged_and_excess_plus_100ms"},
+    {"name": "add_direct_child", "seed": null, "expected": "C0_preserves_change_C1_and_C2_report_rematch_or_nonmatch"},
+    {"name": "remove_direct_child", "seed": null, "expected": "C0_preserves_change_C1_and_C2_report_rematch_or_nonmatch"},
+    {"name": "change_child_multiplicity_only", "seed": null, "expected": "C1_unchanged_C2_changes"},
+    {"name": "thin_references", "seed": 1, "expected": "support_decision_follows_count_and_time_rules"},
+    {"name": "thin_references", "seed": 2, "expected": "support_decision_follows_count_and_time_rules"},
+    {"name": "thin_references", "seed": 3, "expected": "support_decision_follows_count_and_time_rules"},
+    {"name": "thin_references", "seed": 4, "expected": "support_decision_follows_count_and_time_rules"},
+    {"name": "thin_references", "seed": 5, "expected": "support_decision_follows_count_and_time_rules"},
+    {"name": "concentrate_references_in_one_minute", "seed": null, "expected": "fails_concentration_gate"},
+    {"name": "constant_reference_duration", "seed": null, "expected": "median_and_excess_defined_mad_and_ratio_unavailable"},
+    {"name": "zero_reference_duration", "seed": null, "expected": "zero_median_ratio_unavailable_without_infinite_score"},
+    {"name": "contaminate_reference", "seed": 42, "fraction": 0.1, "expected": "center_and_score_change_is_reported"},
+    {"name": "contaminate_reference", "seed": 42, "fraction": 0.3, "expected": "center_and_score_change_is_reported"},
+    {"name": "contaminate_reference", "seed": 42, "fraction": 0.6, "expected": "center_and_score_change_is_reported"},
+    {"name": "shift_one_replica_query", "seed": null, "expected": "historical_departures_and_pooling_qualification_preserved"},
+    {"name": "shift_all_replica_query", "seed": null, "expected": "agreement_does_not_erase_historical_comparison"},
+    {"name": "remove_children_mark_incomplete", "seed": null, "expected": "unknown_structure_distinct_from_known_structural_change"}
+  ]
+}
