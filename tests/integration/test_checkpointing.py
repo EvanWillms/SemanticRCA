@@ -37,6 +37,8 @@ def _invoke(dataset: Path, queries: Path, output: Path) -> tuple[int, str, str]:
                 str(queries),
                 "--out",
                 str(output),
+                "--agent",
+                "agents.submission",
             ]
         )
     return status, stdout.getvalue(), stderr.getvalue()
@@ -153,6 +155,8 @@ class HarnessCheckpointTests(unittest.TestCase):
                     str(queries),
                     "--out",
                     str(output),
+                    "--agent",
+                    "agents.submission",
                 ],
                 capture_output=True,
                 text=True,

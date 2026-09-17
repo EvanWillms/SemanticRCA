@@ -2,7 +2,7 @@
 
 SemanticRCA is a [MantisGrid Hackathon 2026 Track 1](https://github.com/MantisGridAI/hackathon-2026-official/tree/main/track-1) project exploring structured, source-linked telemetry evidence for infrastructure root-cause investigation. It separates deterministic evidence preparation from a bounded investigation loop, aiming to explain when a failure began, which component caused it, and why.
 
-**Current checkpoint:** the default three-flag runner selects `agents.routed`, which combines source-backed discovery with bounded GLM calls and a low-confidence best-guess fallback. The offline demo also connects baseline comparisons, trace semantics, and a scripted investigation. Full benchmark accuracy, routed-versus-single-model diagnosis evaluation, and cold 20-case resource limits remain unverified. Earlier documents and commands use the name **SymbolicRCA**.
+**Current checkpoint:** the default three-flag runner selects `agents.routed`, which combines bounded metric discovery with GLM calls and an explicit “I don’t know” answer when diagnosis is unavailable. Source-backed measurements remain in the evidence file even when the answer is unknown. The offline demo also connects baseline comparisons, trace semantics, and a scripted investigation. Full benchmark accuracy, routed-versus-single-model diagnosis evaluation, and cold 20-case resource limits remain unverified. Earlier documents and commands use the name **SymbolicRCA**.
 
 ## The challenge
 
@@ -75,7 +75,7 @@ python3.12 run.py \
   --out /absolute/path/to/empty-output
 ```
 
-The default agent is `agents.heuristic`, which delegates to the empty-output stub. Append `--agent agents.discovery` to exercise discovery; diagnosis remains pending on that path. Resume is unsupported. For a small offline I/O example, see the [harness guide](docs/demo-harness.md).
+The default agent is `agents.routed`. It reads only metric partitions intersecting the query and a 30-minute reference window, retains up to 24 measured departures with CSV record locators, and asks the configured GLM models for a diagnosis. The reference needs at least 20 samples; the longer window supports minute-cadence telemetry. Interrupted scans retain findings from samples already read. Traces and logs are explicitly marked uninspected on this bounded assessment path. Append `--agent agents.discovery` for the separate full discovery demonstration; diagnosis remains pending on that path. Resume is unsupported. For a small offline I/O example, see the [harness guide](docs/demo-harness.md).
 
 ### Container
 
@@ -97,23 +97,25 @@ docker run --rm \
   python run.py --dataset /data --queries /data/query.csv --out /out
 ```
 
-The current default stub makes no model calls and needs no key. For the completed live agent, the official contract requires `FEATHERLESS_API_KEY`, honors `FEATHERLESS_BASE_URL` when supplied, and otherwise defaults to `https://api.featherless.ai/v1`. Forward a custom endpoint with `-e FEATHERLESS_BASE_URL`. Judging permits network access only to that configured endpoint; inputs are read from `--dataset` and outputs written to `--out`.
+The default agent reads `FEATHERLESS_API_KEY`, honors `FEATHERLESS_BASE_URL` when supplied, and otherwise defaults to `https://api.featherless.ai/v1`. Forward a custom endpoint with `-e FEATHERLESS_BASE_URL`. Judging permits network access only to that configured endpoint; inputs are read from `--dataset` and outputs written to `--out`.
 
 ### Outputs
 
 | Artifact | Meaning |
 |---|---|
-| `predictions.csv` | One row per original `row_id`. Currently blank; the final agent must emit the requested incident fields. |
-| `evidence/<row_id>.md` | `Answer`, `Confidence`, `Evidence`, and `Ruled out` sections. The default stub marks diagnosis unimplemented. |
+| `predictions.csv` | One row per original `row_id`, with the requested incident fields. Unavailable diagnoses contain `I don't know`. |
+| `evidence/<row_id>.md` | Four required sections, with measured values, reference medians, sample counts, timestamps, CSV record locators, coverage limits, and explicit uncertainty. |
 | `usage.jsonl` | Per-case time and model usage. The offline paths record zero model calls/tokens. |
 
-The final answer must preserve the requested failure count, exact component/reason names, and required key ordering. Benchmark timestamps use UTC+8 with a 60-second scoring tolerance. The official rules require a best guess with honest uncertainty in the explanation. Blank scaffold outputs do not fulfill that diagnosis requirement.
+The final answer must preserve the requested failure count, exact component/reason names, and required key ordering. Benchmark timestamps use UTC+8 with a 60-second scoring tolerance. The official rules require a best guess with honest uncertainty in the explanation. An explicit unknown is useful operational output but is not a valid benchmark diagnosis and can score zero. Preserved findings do not establish the cause, and the peak sample timestamp is not verified fault onset.
 
 See the [official submission contract](https://github.com/MantisGridAI/hackathon-2026-official/blob/main/track-1/docs/submission.md) for the authoritative invocation and artifact requirements.
 
 ## Model routing and runtime budgets
 
-Track 1 requires per-call routing within the `zai-org/*` GLM family on Featherless. The intended design uses deterministic preparation to reduce the evidence sent to models, then reserves model calls for interpretation and investigation. Integrated routing, provider fallback, and cost enforcement remain unfinished. The investigation library bounds callback attempts; those bounds do not forcibly interrupt callbacks or establish hard time limits.
+Model eligibility follows the official [Track 1 model list](../mantisgrid-hackathon/hackathon-2026-official/track-1/docs/models.md). The standalone allowlist in `rca/model_policy.py` contains exactly its seven models and is enforced before submission and live semantic-study requests, including fallback choices. The separately authorized Luna research experiments and development-tool authorship disclosures are outside this submission/Featherless inference policy.
+
+Track 1 requires per-call routing within the `zai-org/*` GLM family on Featherless. The intended design uses deterministic preparation to reduce the evidence sent to models, then reserves model calls for interpretation and investigation. Bounded GLM calls and provider fallback are implemented; end-to-end cost enforcement and diagnosis quality remain unverified. The investigation library bounds callback attempts; those bounds do not forcibly interrupt callbacks or establish hard time limits.
 
 The [official model guide](https://github.com/MantisGridAI/hackathon-2026-official/blob/main/track-1/docs/models.md) specifies:
 
@@ -153,7 +155,7 @@ PYTHONDONTWRITEBYTECODE=1 python3.12 -m unittest discover -s tests -v
 
 Library-specific checks are documented in their READMEs. Passing a check establishes its tested contract, not full benchmark readiness.
 
-Remaining work is to integrate a live diagnoser with final answer persistence; complete routing, fallback, and runtime budget enforcement; harden retrieval and comparisons on real data; and run repeated routed versus single-model evaluations and a constrained container rehearsal. The [future-work notes](docs/hackathon-future-work.md) provide additional context.
+Remaining work is to establish live diagnosis quality, complete end-to-end cost enforcement, strengthen causal investigation beyond metric departures, and run repeated routed versus single-model evaluations and the full constrained benchmark. The [future-work notes](docs/hackathon-future-work.md) provide additional context.
 
 ## Attribution and AI disclosure
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Official three-flag entrypoint for the offline empty-output harness."""
+"""Official three-flag entrypoint for assessment predictions and evidence."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ DEFAULT_AGENT = "agents.routed"
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run the empty-output RCA harness")
+    parser = argparse.ArgumentParser(description="Assess telemetry and write RCA predictions and evidence")
     parser.add_argument("--dataset", required=True, help="mounted dataset directory")
     parser.add_argument("--queries", required=True, help="query CSV path")
     parser.add_argument("--out", required=True, help="empty output directory")
