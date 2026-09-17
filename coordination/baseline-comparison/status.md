@@ -1,7 +1,8 @@
 State: ready
-Updated: 2026-09-17T21:29:00Z
-Latest checkpoint: First raw-CSV-to-descriptor public seam passes on Python 3.12; semantic implementation commit in progress.
-Working now: Finishing focused owner code review and comparison core checks; no broad acceptance expansion.
-Demo evidence: python3.12 -m unittest tests.unit.test_baseline_core tests.unit.test_baseline_sources tests.integration.test_baseline_pipeline -v — 8 tests PASS. CLI python3.12 -m rca.baselining.demo --dataset-dir tests/fixtures/qualified_baselines/dataset --scope-file tests/fixtures/qualified_baselines/scope.json --output-dir /tmp/symbolicrca-baseline-demo-01a0b13b — completed, 2 supported baselines, 8 query descriptors.
+Updated: 2026-09-17T21:32:58+00:00
+Latest checkpoint: 7539556 implements the raw-CSV-to-descriptor demo; final reviewed corrections and 13-test checkpoint follow. Presentation wrapper owner committed 90e1011.
+Working now: Ready for integration. Owner review complete; no background implementation remains.
+Demo evidence: python3.12 -m unittest tests.unit.test_baseline_core tests.unit.test_baseline_sources tests.unit.test_descriptor_core tests.integration.test_baseline_pipeline -v — 13 tests PASS. CLI python3.12 -m rca.baselining.demo --dataset-dir tests/fixtures/qualified_baselines/dataset --scope-file tests/fixtures/qualified_baselines/scope.json --output-dir /tmp/symbolicrca-baseline-demo-01a0b13b — completed, 2 supported baselines, 8 query descriptors.
 Next handoff: from rca.baselining import BaselinePolicy, prepare_sources, collect_requests, freeze_baselines, assign_queries; from rca.comparisons import describe, ComparisonDefinition. CSV policy is BaselinePolicy(normalization_id="provisional-us-to-ms-v1"). run_demo(dataset_dir, deployment, anchor_ms, output_dir) in rca.baselining.demo composes the complete example. Report at /tmp/symbolicrca-baseline-demo-01a0b13b/demo.json.
 Blocker / overlap: No demo blocker. Formal artifact build/load/validation CLI, full semantic source+derived graph validation, trusted rankings, full B01–B12/D01–D12 acceptance and large-source performance remain deferred. Constructed descriptors are not certified semantic evidence. Legacy discovery remains unchanged. Trace-domain owner explicitly excludes telemetry retrieval, so trace_index.py ownership is clear.
+Presentation demo: python3.12 scripts/demo_baseline_comparison.py (wrapper owner checkpoint 90e1011); walkthrough in docs/demo-baseline-comparison.md. Public API and limitations: coordination/baseline-comparison/handoff.md.

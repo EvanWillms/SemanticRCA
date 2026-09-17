@@ -112,8 +112,13 @@ def _deduplicate(observations: Iterable[Observation]) -> tuple[tuple[Observation
         if any(not _same_semantics(first, item) for item in items[1:]):
             conflicts.add(observation_id)
             reasons[observation_id] = ("conflicting_duplicate",)
+            # Keep one scoped record in the candidate population so the
+            # conflict remains visible.  ``conflicts`` prevents it from
+            # entering a member or structural denominator.
+            deduped.append(replace(first, duplicate_count=len(items), conflict=True, completion_state="conflict"))
             continue
-        deduped.append(first)
+        locators = tuple(dict.fromkeys((*first.source_locators, *(locator for item in items[1:] for locator in item.source_locators))))
+        deduped.append(replace(first, duplicate_count=len(items), source_locators=locators))
         if len(items) > 1:
             reasons[observation_id] = ("duplicate_collapsed",)
     return tuple(deduped), reasons, conflicts
@@ -192,11 +197,19 @@ def freeze_baselines(
     exclusions_by_c1: dict[Any, dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
     for item in candidates:
         reasons: list[str] = []
+        membership_reasons: list[str] = []
         if item.observation_id in conflicts:
             reasons.append("conflicting_duplicate")
+            membership_reasons.append("conflicting_duplicate")
         completion_reason = _completion_reason(item, anchor)
         if completion_reason:
             reasons.append(completion_reason)
+            membership_reasons.append(completion_reason)
+        # C0 structural populations share only time/completion eligibility.
+        # An invalid duration or incompatible unit excludes a C1 duration
+        # member but must not erase known/unknown structural evidence.
+        if not membership_reasons:
+            eligible_by_c0[item.c0_key].append(item)
         if not item.measurement.available or item.measurement.normalized_ms is None:
             reasons.extend(item.measurement.reasons or ("invalid_measurement",))
         if item.measurement.normalization_id != selected_policy.normalization_id:
@@ -205,7 +218,6 @@ def freeze_baselines(
             key = item.c1_key if item.c1_key is not None else ("unknown", item.c0_key)
             exclusions_by_c1[key][item.observation_id].extend(dict.fromkeys(reasons))
             continue
-        eligible_by_c0[item.c0_key].append(item)
         if item.c1_key is not None:
             members_by_c1[item.c1_key].append(item)
 

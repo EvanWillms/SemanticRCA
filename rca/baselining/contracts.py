@@ -236,6 +236,8 @@ class Observation:
     source_locators: tuple[SourceLocator, ...] = ()
     completion_state: str = "resolved"
     raw_id: str | None = None
+    duplicate_count: int = 1
+    conflict: bool = False
 
     def __post_init__(self) -> None:
         _finite_nonnegative(self.start_ms)
@@ -245,6 +247,8 @@ class Observation:
             raise ValueError("structure_state must be known or unknown")
         if self.completion_state not in {"resolved", "unknown", "conflict", "excluded"}:
             raise ValueError("invalid completion state")
+        if self.duplicate_count <= 0:
+            raise ValueError("duplicate_count must be positive")
         if self.end_ms is None and self.completion_state == "resolved":
             object.__setattr__(self, "completion_state", "unknown")
 
@@ -300,6 +304,8 @@ class Observation:
             "completion_state": self.completion_state,
             "source_locators": [item.to_dict() for item in self.source_locators],
             "raw_id": self.raw_id,
+            "duplicate_count": self.duplicate_count,
+            "conflict": self.conflict,
         }
 
 

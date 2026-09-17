@@ -18,10 +18,8 @@ def review_view(
     """Return a deterministic compact view without dropping full outcomes.
 
     Ranking uses the unrounded signed excess in milliseconds.  Descriptors
-    whose validation failed are rejected because a compact view must never
-    turn failed evidence into trusted review material; freshly constructed
-    descriptors are accepted for pure local workflows and can be revalidated
-    before publication.
+    must already have passed semantic validation. Constructed, unchecked and
+    failed descriptors cannot enter a trusted review view.
     """
     all_items = list(descriptors)
     scoped = [

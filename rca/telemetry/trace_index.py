@@ -81,8 +81,12 @@ def _trace_sources(inventory: Mapping[str, Any]) -> list[dict[str, Any]]:
         families = inventory.get("source_families", {})
         trace = families.get("trace_span", {}) if isinstance(families, Mapping) else {}
         sources = trace.get("sources", []) if isinstance(trace, Mapping) else []
-    result = [dict(source) for source in (sources or [])
-              if isinstance(source, Mapping) and source.get("family") == "trace_span"]
+    result: list[dict[str, Any]] = []
+    for source in (sources or []):
+        if isinstance(source, Mapping) and source.get("family") == "trace_span":
+            result.append(dict(source))
+        elif isinstance(source, str):
+            result.append({"family": "trace_span", "path": source})
     result.sort(key=lambda source: str(source.get("path", "")))
     return result
 
@@ -318,11 +322,38 @@ class PreparedTraceView(Mapping[str, Any]):
     def __len__(self) -> int:
         return 10
 
+    @property
+    def source_inventory(self) -> tuple[dict[str, Any], ...]:
+        return self.sources
+
+    @property
+    def snapshot(self) -> dict[str, Any]:
+        return {
+            "snapshot_id": self.snapshot_id,
+            "deployment": self.deployment,
+            "sources": self.sources,
+            "parser_version": TRACE_PARSER_VERSION,
+            "extraction_version": TRACE_EXTRACTION_VERSION,
+            "status": "verified",
+        }
+
     def resolve_source(self, locator: Mapping[str, Any]) -> dict[str, str]:
         """Resolve one declared CSV record without permitting path escape."""
-        relative = str(locator.get("path", locator.get("source_path", "")))
-        record = int(locator.get("record", locator.get("source_record", 0)) or 0)
-        digest = str(locator.get("source_digest", locator.get("sha256", "")))
+        def field(name: str, *aliases: str, default: Any = "") -> Any:
+            names = (name, *aliases)
+            if isinstance(locator, Mapping):
+                for item in names:
+                    if item in locator:
+                        return locator[item]
+                return default
+            for item in names:
+                if hasattr(locator, item):
+                    return getattr(locator, item)
+            return default
+
+        relative = str(field("path", "source_path", "selector", default=""))
+        record = int(field("record", "source_record", default=0) or 0)
+        digest = str(field("source_digest", "sha256", "source_id", default=""))
         declared = next((source for source in self.sources if source["path"] == relative), None)
         if declared is None or (digest and digest != declared["sha256"]):
             raise SourceIntegrityError(f"unknown_source_locator:{relative}")
@@ -337,8 +368,12 @@ class PreparedTraceView(Mapping[str, Any]):
                 return _row_payload(row)
         raise SourceIntegrityError(f"unknown_source_record:{relative}:{record}")
 
-    def verify_snapshot(self, snapshot: Mapping[str, Any]) -> None:
+    def verify_snapshot(self, snapshot: Mapping[str, Any] | Any) -> None:
         """Validate a serialized snapshot identity against this prepared view."""
+        if not isinstance(snapshot, Mapping) and hasattr(snapshot, "to_dict"):
+            snapshot = snapshot.to_dict()
+        if not isinstance(snapshot, Mapping):
+            raise TypeError("snapshot must be a mapping or SourceSnapshot")
         expected_id = str(snapshot.get("snapshot_id", snapshot.get("id", "")))
         if expected_id != self.snapshot_id:
             raise SourceIntegrityError("source_changed:snapshot_id")
@@ -346,8 +381,17 @@ class PreparedTraceView(Mapping[str, Any]):
         if expected_deployment != self.deployment:
             raise SourceIntegrityError("source_changed:deployment")
         declared_sources = snapshot.get("sources")
-        if declared_sources is not None and _canonical(list(declared_sources)) != _canonical(list(self.sources)):
-            raise SourceIntegrityError("source_changed:inventory")
+        if declared_sources is not None:
+            normalized: list[dict[str, Any]] = []
+            for source in declared_sources:
+                if isinstance(source, Mapping):
+                    path = source.get("path", source.get("selector", ""))
+                    digest = source.get("sha256", source.get("source_digest", source.get("source_id", "")))
+                    normalized.append({"path": str(path), "sha256": str(digest)})
+            expected = [{"path": str(source["path"]), "sha256": str(source["sha256"])}
+                        for source in self.sources]
+            if _canonical(normalized) != _canonical(expected):
+                raise SourceIntegrityError("source_changed:inventory")
 
     def roots(self, start_ms: Any, end_ms: Any,
               components: Sequence[str]) -> list[dict[str, Any]]:
