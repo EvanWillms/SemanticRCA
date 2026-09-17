@@ -7,8 +7,10 @@ The library carries forward the fidelity boundaries of ADRs 0002, 0011, 0012
 and 0015, without importing experimental runners or their fixture mappings.
 
 Use a narrow JSON-compatible input boundary adapted to recovered Track-1
-traces (`trace_id`, `deployment`, `spans` containing `raw` and `locator`). Explicit
-context records units and source semantics. The domain representation separates
+traces (`trace_id`, `deployment`, `spans` containing `raw` and `locator`). Retain
+the whole input trace, including optional context, coverage and other extensions.
+The collection policy declares units; explicit contradictory source context
+must remain an unresolved timing qualification. The domain representation separates
 raw evidence, accepted facts and deferred facets. Description construction is
 pure and deterministic. No implicit unit or status conventions are installed.
 
