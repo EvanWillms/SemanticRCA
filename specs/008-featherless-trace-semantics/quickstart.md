@@ -41,7 +41,7 @@ A cache-free run must remain correct and budgeted. No fixed hit rate, TTL or lat
 
 ```sh
 python3 -m unittest experiments.semantic_encoding_v1.test_p01 -v
-python3 -m experiments.semantic_encoding_v1.run_p01 score --run-id 20260917-p01-002
+python3 -m experiments.semantic_encoding_v1.run_p01 score --run-id 20260917-p01-002 --report-name result-demo-reviewed.json
 ```
 
-Scoring is offline and preserves the original live summary, writing/confirming the separate audited report. The older live code snapshot remains in the run directory. For an explicitly authorized new live run, set FEATHERLESS_API_KEY in the environment or a local Git-ignored .env, then use `prepare --run-id NEW_ID` followed by `run --run-id NEW_ID`. Prepare makes bounded metadata/tokenization calls; run admits at most 18 generation attempts and refuses reused execution IDs. Never use shell sourcing to load the environment file. No cache-smoke sender is enabled: the observed natural-prefix gate fails. Current code is the bounded P01 slice, not S09 or production integration.
+The demo command is offline and spends no credits. It verifies retained frozen artifacts, preserves the original live and audited summaries, and writes/confirms a separate reviewed demo report. The original evidence folder must be present locally. The older live code snapshot remains in the run directory. For an explicitly authorized new live run, set FEATHERLESS_API_KEY in the environment or a local Git-ignored .env, then use `prepare --run-id NEW_ID` followed by `run --run-id NEW_ID`. Prepare makes bounded metadata/tokenization calls; run admits at most 18 generation attempts and refuses reused execution IDs. Never use shell sourcing to load the environment file. No cache-smoke sender is enabled: the observed natural-prefix gate fails. Current code is the bounded P01 slice, not S09 or production integration.

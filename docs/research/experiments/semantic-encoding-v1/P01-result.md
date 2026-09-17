@@ -53,7 +53,7 @@ From the repository root, offline only:
 
 ```sh
 python3 -m unittest experiments.semantic_encoding_v1.test_p01 -v
-python3 -m experiments.semantic_encoding_v1.run_p01 score --run-id 20260917-p01-002
+python3 -m experiments.semantic_encoding_v1.run_p01 score --run-id 20260917-p01-002 --report-name result-demo-reviewed.json
 ```
 
 - [Audited result](../../../../data/experiments/semantic-encoding-v1/P01/20260917-p01-002/result-audited.json)
