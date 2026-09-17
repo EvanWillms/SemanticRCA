@@ -21,19 +21,29 @@ POLICY_ID = 'track1-discovery-v1'
 def discover(dataset: Path, scope: dict[str, Any], row_id: int,
              budget: CaseBudget | None = None, run_context=None) -> dict[str, Any]:
     operations = []
+    partial_state: dict[str, Any] = {}
     budget = budget or RunBudget().allocate(1)
     try:
-        return _discover(dataset, scope, row_id, budget, operations, run_context)
+        return _discover(dataset, scope, row_id, budget, operations, run_context, partial_state)
     except (BudgetExceeded, TraceIndexBudgetExceeded, OSError, ValueError) as exc:
         reason = 'analysis_time_budget_exhausted' if isinstance(exc, (BudgetExceeded, TraceIndexBudgetExceeded)) else 'operation_failed'
-        return {'findings': {'schema_version': 'discovery-v1', 'row_id': row_id,
-                            'status': 'partial', 'stop_reason': reason, 'candidates': [],
-                            'findings': [], 'logs': [], 'coverage': {'telemetry': 'partial'},
-                            'qualifications': ['Interrupted operation results are unavailable; consult the operation journal.']},
+        findings = partial_state.get('findings')
+        if findings is None:
+            findings = {'schema_version': 'discovery-v1', 'row_id': row_id,
+                        'status': 'partial', 'stop_reason': reason, 'candidates': [],
+                        'findings': [], 'logs': [], 'coverage': {'telemetry': 'partial'},
+                        'qualifications': ['Interrupted operation results are unavailable; consult the operation journal.']}
+        else:
+            findings['status'] = 'partial'
+            findings['stop_reason'] = reason
+            findings.setdefault('qualifications', []).append(
+                'Completed observations are retained; interrupted operation results may be unavailable. '
+                'Consult the operation journal for the failed stage.')
+        return {'findings': findings,
                 'operations': operations}
 
 
-def _discover(dataset, scope, row_id, budget, operations, run_context):
+def _discover(dataset, scope, row_id, budget, operations, run_context, partial_state):
     source_id = None
     start = datetime.fromisoformat(scope['window_start']).timestamp()
     end = datetime.fromisoformat(scope['window_end']).timestamp()
@@ -83,9 +93,13 @@ def _discover(dataset, scope, row_id, budget, operations, run_context):
     base = {'schema_version': 'discovery-v1', 'row_id': row_id, 'policy_id': POLICY_ID,
             'source_id': source_id, 'source_snapshot': snapshot, 'coverage': coverage,
             'candidates': [], 'findings': [], 'logs': [], 'relationships': [],
+            'recorded_traces': [], 'metric_comparisons': [],
+            'trace_coverage': None, 'metric_coverage': None,
+            'status': 'partial', 'stop_reason': 'operation_in_progress',
             'qualifications': ['Discovery describes observations and does not establish root cause.']}
     if preparation:
         base.update(preparation_id=preparation['preparation_id'], preparation_reused=preparation['reused'])
+    partial_state['findings'] = base
     if not snapshot['sources']:
         return {'findings': {**base, 'status': 'unavailable', 'stop_reason': 'missing_telemetry_sources'},
                 'operations': operations}
@@ -95,18 +109,39 @@ def _discover(dataset, scope, row_id, budget, operations, run_context):
                            lambda: recover_traces(dataset, snapshot, start - 300, end,
                                                   check_budget=budget.check, frontend_only=True,
                                                   prepared_view=preparation['view'] if preparation else None))
+    base['recorded_traces'] = trace_result['traces']
+    base['trace_coverage'] = {key: value for key, value in trace_result.items() if key != 'traces'}
+    for family in coverage:
+        if family == 'trace_span' and any(source['family'] == family for source in snapshot['sources']):
+            coverage[family] = {'status': 'inspected', 'reason': None}
     trace_comparison = perform('compare', 'How do query durations and structures differ from prior observations?',
                                {'channel': 'trace', 'reference_seconds': 300},
                                lambda: compare_traces(trace_result, start, end))
+    base['findings'].extend(trace_comparison['findings'])
+    base['candidates'].extend(trace_comparison['candidates'])
     from rca.telemetry.metrics import metric_series, compare_series
     metrics = perform('metric_series', 'Which resource measurements occur in the query and reference window?',
                       {'start': start - 300, 'end': end}, lambda: metric_series(dataset, snapshot, scope, check_budget=budget.check))
+    base['metric_series'] = metrics['series']
+    base['metric_coverage'] = {key: value for key, value in metrics.items() if key != 'series'}
+    metric_family_states = (metrics.get('coverage') or {}).get('families', {})
+    for family, state in metric_family_states.items():
+        if family not in coverage or not isinstance(state, dict):
+            continue
+        status = state.get('status', 'unavailable')
+        reasons = state.get('reasons') or []
+        coverage[family] = {
+            'status': status,
+            'reason': None if status == 'inspected' else '; '.join(str(reason) for reason in reasons) or
+                      'metric_source_unavailable',
+        }
     metric_comparison = perform('compare', 'Which recorded resource samples differ from their prior median?',
                                {'channel': 'metrics', 'reference_seconds': 300}, lambda: compare_series(metrics))
-    base['recorded_traces'] = trace_result['traces']
     base['metric_comparisons'] = metric_comparison['comparisons']
-    base['findings'] = trace_comparison['findings'] + metric_comparison['findings']
-    base['candidates'] = trace_comparison['candidates'] + metric_comparison['candidates']
+    base['findings'].extend(metric_comparison['findings'])
+    base['candidates'].extend(metric_comparison['candidates'])
+    del base['metric_series']  # Completed comparisons already retain their source observations.
+    base.pop('metric_series', None)
     # Only describe traces selected by observed departures. This is an evidence
     # selection rule, not an assertion that the trace contains the root cause.
     from trace_semantics import EncodingPolicy, partition_traces, describe
@@ -123,11 +158,6 @@ def _discover(dataset, scope, row_id, budget, operations, run_context):
                                            {'trace_ids': [trace['trace_id'] for trace in selected_traces]},
                                            lambda: describe(partition))
     base['qualifications'].append('Semantic traces are selected by descriptive departures; fault association is unproven.')
-    base['trace_coverage'] = {key: value for key, value in trace_result.items() if key != 'traces'}
-    base['metric_coverage'] = {key: value for key, value in metrics.items() if key != 'series'}
-    for family in coverage:
-        if any(source['family'] == family for source in snapshot['sources']) and not family.startswith('log_'):
-            coverage[family] = {'status': 'inspected', 'reason': None}
 
     # One deterministic corroboration question keeps the first happy path bounded.
     resources = sorted({candidate['resource'] for candidate in base['candidates']})
