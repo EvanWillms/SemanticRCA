@@ -1,6 +1,6 @@
 # Standalone deterministic trace semantics
 
-## Demo-first amendment
+## Delivery checkpoints
 
 The user subsequently prioritized "ready to demo as soon as possible" and
 "minimal happy-path with only core TDD coverage." The current checkpoint
@@ -16,6 +16,13 @@ The demo loads these files both from the source checkout and an independently
 installed package. Optional output artifacts expose partitioning, early deferrals,
 the description set and summary. Reject expectation mismatches and existing
 output directories rather than reporting a false pass or replacing a prior run.
+
+The user subsequently explicitly requested continuing the remaining library
+work. The authored demo remains available on the shared branch. Completion of
+this follow-up requires addressing the documented correctness and efficiency
+gaps against the requirements below; demo success alone is not full acceptance.
+The follow-up is isolated on `fix/trace-semantics-robustness` so concurrent
+fixture-demo work remains independent.
 
 The caller supplies a collection of traces already selected as fault related.
 This library describes their recorded evidence; selection and diagnosis belong
@@ -89,3 +96,12 @@ recovery, duplicate/conflict handling, cross-trace identity isolation, missing
 parents/cycles, malformed input, units and status abstention, deterministic
 serialization and independent installation. Existing repository tests remain a
 regression check. Review every new code file and fix actionable findings.
+
+## Final three-step scope
+
+The user then requested wrapping up with only the three most material steps:
+(1) finish the current partition identity/evidence/parent-link fixes,
+(2) finish description validation and context qualifications, and
+(3) verify, commit and hand off the isolated branch. Further hardening and
+additional capabilities are deferred; this does not establish diagnostic
+accuracy, telemetry authenticity, compression savings or production readiness.

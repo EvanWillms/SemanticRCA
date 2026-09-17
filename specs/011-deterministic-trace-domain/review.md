@@ -83,3 +83,36 @@ and installed from a copy outside the repository: isolated Python 3.12 loaded
 the bundled JSON fixtures and produced `partition.json`, `deferred.json`,
 `description.json` and `summary.json` with a PASS result. No new review blocker
 was found on this fixture path. Earlier robustness follow-ups remain unchanged.
+
+## Isolated follow-up verification
+
+The user resumed remaining library work, then limited completion to three
+material steps: partition fixes, description validation/context, and verified
+commit/handoff. This follow-up is on `fix/trace-semantics-robustness`; it does not
+rewrite the historical demo findings above.
+
+The recorded root/typed identity, malformed evidence addressing, duplicate
+envelope recovery, context/unit-alias, conflict-memory and parent-candidate
+issues are repaired. Descriptions now expose context and shared trace-scoped
+qualifications, and validate evidence/coverage/resolved-edge consistency.
+Canonical JSON safely escapes strings and rejects recursive/non-finite input.
+
+Independent Luna specification review reports no functional blockers and
+confirms all parent candidates, typed composed encoding and malformed evidence
+retention. Parent review covered all changed source/tests and caught a new
+quadratic cycle-validation walk and raw-Python identity-key regression; both
+were fixed before final verification. See [identity TDD notes](tdd-identity.md)
+and [description TDD notes](tdd-description.md), including the recorded test
+cadence deviation.
+
+Final checks: **34 package tests passed**; Ruff passed on **source and tests**;
+`git diff --check` passed. A fresh copy built and installed outside the repository
+with no runtime dependencies; `python -I -m trace_semantics.demo` passed using
+that installed package. The copied wheel was
+`symbolicrca_trace_semantics-0.1.0-py3-none-any.whl`.
+
+Limitations: structural validation does not authenticate telemetry or prove a
+self-consistent supplied partition is genuine. Source operation mappings remain
+caller supplied. No model, compression, diagnostic, causal, or production-readiness
+claim is made. Further capabilities and hardening beyond these three steps are
+deferred. Integration into the shared checkout is owned by the integration task.

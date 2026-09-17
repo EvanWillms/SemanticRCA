@@ -1,5 +1,6 @@
+import pytest
 from trace_semantics import EncodingPolicy, encode_traces
-from trace_semantics.description import canonical_json, describe
+from trace_semantics.description import canonical_json, describe, description_digest
 
 
 def _raw_span(trace_id, span_id, operation, parent=""):
@@ -55,8 +56,8 @@ def _partition_with_mixed_nodes():
                 ],
                 "edges": [{"child_span_id": "child", "parent_span_id": "root", "resolved": True}],
                 "evidence": [
-                    {"locator": {"record": 3}, "raw": _raw_span("trace-1", "child", "mystery.read", "root")},
-                    {"locator": {"record": 2}, "raw": _raw_span("trace-1", "root", "GET /cart")},
+                    {"evidence_id": "e-child", "locator": {"record": 3}, "raw": _raw_span("trace-1", "child", "mystery.read", "root")},
+                    {"evidence_id": "e-root", "locator": {"record": 2}, "raw": _raw_span("trace-1", "root", "GET /cart")},
                 ],
                 "coverage": {"record_count": 2, "occurrence_count": 2},
             }
@@ -98,6 +99,66 @@ def test_describe_preserves_raw_evidence_and_mixed_operation_counts():
         {"raw": "GET /cart", "meaning": "cart.request"},
         {"raw": "mystery.read", "meaning": None},
     ]
+
+
+def test_describe_exposes_context_and_one_scoped_structural_qualification():
+    result = describe(_partition_with_mixed_nodes())
+    trace = result["traces"][0]
+
+    assert trace["context"] == {"route": "/cart"}
+    assert trace["qualifications"] == [{
+        "semantic_layer": "descriptive",
+        "production_method": "code",
+        "definition_version": "trace-description-v1",
+        "policy_version": "ops-v1",
+        "validation_state": "structural_only",
+        "mapping_state": "source_mapping_unverified",
+        "claim_kinds": {
+            "context": "supplied",
+            "evidence": "observed",
+            "nodes": "derived",
+            "edges": "derived",
+            "counts": "derived",
+            "deferred": "derived",
+        },
+        "scope": {"trace_id": "trace-1", "deployment": "prod-a"},
+        "evidence_ids": ["e-child", "e-root"],
+        "limitations": ["no_causation", "no_outcome", "source_authenticity_unverified"],
+        "applies_to": ["context", "evidence", "nodes", "edges", "counts", "deferred"],
+    }]
+
+
+def test_describe_rejects_forged_coverage_and_evidence_references():
+    partition = _partition_with_mixed_nodes()
+    partition["traces"][0]["coverage"]["record_count"] = 99
+    with pytest.raises(ValueError, match="record_count"):
+        describe(partition)
+
+    partition = _partition_with_mixed_nodes()
+    partition["traces"][0]["nodes"][0]["occurrences"] = [{"evidence_id": "forged"}]
+    with pytest.raises(ValueError, match="evidence_id"):
+        describe(partition)
+
+
+def test_describe_rejects_cycles_and_non_finite_partition_values():
+    cyclic = _partition_with_mixed_nodes()
+    cyclic["cycle"] = cyclic
+    with pytest.raises(TypeError, match="finite JSON-compatible|cyclic"):
+        describe(cyclic)
+
+    non_finite = _partition_with_mixed_nodes()
+    non_finite["metadata"] = float("nan")
+    with pytest.raises(TypeError, match="finite JSON-compatible"):
+        describe(non_finite)
+
+
+def test_canonical_json_escapes_lone_surrogates_for_digest_stability():
+    description = {"text": "\ud800"}
+
+    encoded = canonical_json(description)
+
+    assert "\\ud800" in encoded
+    assert description_digest(description) == "7d38e2388498cec03881027e7753b07826c5af2d61dd589b4c1caaab14ec2cc4"
 
 
 def test_encode_traces_wires_partition_early_deferral_and_stable_serialization():

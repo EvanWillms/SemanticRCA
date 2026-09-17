@@ -13,11 +13,17 @@
 - [x] Move demo inputs/expectations into bundled JSON fixtures, add optional
   artifact output and custom fixture selection, and verify the installed demo.
 
-## Follow-up, explicitly outside the demo checkpoint
+## Resumed follow-up: final three-step scope
 
-- [ ] Tighten nonstandard/root identity validation and malformed-envelope
-  evidence identity uniqueness.
-- [ ] Expose structured context and claim metadata consistently; retain raw
-  source context in the meantime.
-- [ ] Harden alias-unit comparison, adversarial JSON nesting and duplicate
-  conflict memory growth; expand acceptance only when this work is resumed.
+The user explicitly resumed remaining work, then requested wrapping up with
+only these three material steps on the isolated follow-up branch:
+
+- [x] Fix partition identity, evidence recovery and conflicting parent links.
+- [x] Finish description structural validation and scoped context qualifications.
+- [x] Run core checks, independently install, review and commit for handoff.
+
+Delivered behavior includes typed scalar identity keys, exact root markers,
+unique per-call evidence addressing, valid rows retained after malformed duplicate
+envelopes, equivalent unit handling, per-record operation deferrals, all observed
+parent candidates and linear conflict-reference storage. Broader additional
+hardening and new capabilities are deferred per the final user instruction.
