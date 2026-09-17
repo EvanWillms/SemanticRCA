@@ -9,6 +9,8 @@ import urllib.request
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from rca.model_policy import require_allowed_model
+
 MODEL = 'zai-org/GLM-5.3-Flash'
 
 
@@ -88,6 +90,8 @@ def _failure(status, error_type, start):
 def request(key: str, base: str, endpoint: str, payload=None, timeout=60,
             max_bytes=4_000_000, deadline=None) -> dict:
     """Return sanitized raw body, never request headers or exception messages."""
+    if payload is not None or endpoint.rstrip("/").endswith(("/chat/completions", "/tokenize")):
+        require_allowed_model((payload or {}).get("model"))
     body = None if payload is None else json.dumps(payload, ensure_ascii=False, separators=(',', ':')).encode()
     req = urllib.request.Request(base + endpoint, data=body, headers={
         'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'User-Agent': 'SymbolicRCA-P01/1'})

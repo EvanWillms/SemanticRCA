@@ -76,7 +76,7 @@ class P01Tests(unittest.TestCase):
     def test_transport_failure_no_retry(self):
         opener=MagicMock();opener.open.side_effect=TimeoutError('credential-must-not-appear')
         with patch('urllib.request.build_opener',return_value=opener):
-            result=request('credential-must-not-appear','https://api.featherless.ai/v1','/chat/completions',{})
+            result=request('credential-must-not-appear','https://api.featherless.ai/v1','/chat/completions',{'model': 'zai-org/GLM-5.3-Flash'})
         self.assertEqual(opener.open.call_count,1)
         self.assertEqual(result['error_type'],'TimeoutError')
         self.assertNotIn('credential-must-not-appear',json.dumps(result))
@@ -85,7 +85,7 @@ class P01Tests(unittest.TestCase):
         error.read = Mock(side_effect=TimeoutError('credential-must-not-appear'))
         opener = MagicMock(); opener.open.side_effect = error
         with patch('urllib.request.build_opener', return_value=opener):
-            result = request('credential-must-not-appear', 'https://api.featherless.ai/v1', '/chat/completions', {})
+            result = request('credential-must-not-appear', 'https://api.featherless.ai/v1', '/chat/completions', {'model': 'zai-org/GLM-5.3-Flash'})
         self.assertEqual(result['status'], 503)
         self.assertEqual(result['error_type'], 'TimeoutError')
         self.assertIsNone(result['raw_body'])
@@ -96,7 +96,7 @@ class P01Tests(unittest.TestCase):
         with patch('urllib.request.build_opener', return_value=opener), patch(
             'experiments.semantic_encoding_v1.featherless_p01.time.monotonic', return_value=100.0
         ):
-            result = request('credential', 'https://api.featherless.ai/v1', '/chat/completions', {}, deadline=99.0)
+            result = request('credential', 'https://api.featherless.ai/v1', '/chat/completions', {'model': 'zai-org/GLM-5.3-Flash'}, deadline=99.0)
         self.assertEqual(result['error_type'], 'DeadlineExceeded')
         opener.open.assert_not_called()
 
@@ -121,7 +121,7 @@ class P01Tests(unittest.TestCase):
         with patch('urllib.request.build_opener', return_value=opener), patch(
             'experiments.semantic_encoding_v1.featherless_p01.time.monotonic', side_effect=clock
         ):
-            result = request('credential', 'https://api.featherless.ai/v1', '/chat/completions', {}, deadline=110.0)
+            result = request('credential', 'https://api.featherless.ai/v1', '/chat/completions', {'model': 'zai-org/GLM-5.3-Flash'}, deadline=110.0)
         self.assertEqual(result['status'], 200)
         self.assertEqual(result['error_type'], 'DeadlineExceeded')
 

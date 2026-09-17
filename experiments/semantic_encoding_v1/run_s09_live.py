@@ -17,6 +17,8 @@ from datetime import datetime, timezone
 from importlib.metadata import version
 from pathlib import Path
 
+from rca.model_policy import require_allowed_model
+
 from .run_s02_s09 import RAW_FIELDS, compact, sha_bytes
 
 
@@ -246,6 +248,7 @@ def validate_response(content: str, expected: dict, allowed_evidence: set[str], 
 
 
 def call_provider(endpoint: str, key: str, body: dict):
+    require_allowed_model(body.get("model"))
     # Keep offline preparation and fixture checks independent of the live SDK.
     import openai
 
