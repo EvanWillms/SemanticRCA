@@ -14,7 +14,7 @@ validate its artifacts:
 
 ```bash
 HARNESS_OUT="$(mktemp -d)"
-python3.12 run.py --dataset eval/fixtures --queries eval/fixtures/query.csv --out "$HARNESS_OUT"
+python3.12 run.py --dataset eval/fixtures --queries eval/fixtures/query.csv --out "$HARNESS_OUT" --agent agents.submission
 python3.12 scripts/validate_harness.py --queries eval/fixtures/query.csv --out "$HARNESS_OUT"
 ```
 

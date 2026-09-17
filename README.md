@@ -2,7 +2,7 @@
 
 SemanticRCA is a [MantisGrid Hackathon 2026 Track 1](https://github.com/MantisGridAI/hackathon-2026-official/tree/main/track-1) project exploring structured, source-linked telemetry evidence for infrastructure root-cause investigation. It separates deterministic evidence preparation from a bounded investigation loop, aiming to explain when a failure began, which component caused it, and why.
 
-**Current checkpoint:** a working offline demo connects telemetry discovery, baseline comparisons, trace semantics, and a scripted investigation. The default submission runner still writes blank predictions. Live end-to-end diagnosis, model routing, and benchmark performance remain to be established. Earlier documents and commands use the name **SymbolicRCA**.
+**Current checkpoint:** the default three-flag runner selects `agents.routed`, which combines source-backed discovery with bounded GLM calls and a low-confidence best-guess fallback. The offline demo also connects baseline comparisons, trace semantics, and a scripted investigation. Full benchmark accuracy, routed-versus-single-model diagnosis evaluation, and cold 20-case resource limits remain unverified. Earlier documents and commands use the name **SymbolicRCA**.
 
 ## The challenge
 
@@ -54,12 +54,12 @@ See the [combined demo guide](docs/demo-discovery.md) and [richer baseline demo]
 
 | Area | Current behavior |
 |---|---|
-| Default runner | Validates inputs and writes placeholder predictions, evidence, and usage. |
+| Default runner | Runs `agents.routed`; writes requested incident fields, evidence and usage. Explicit `agents.submission` retains the placeholder regression mode. |
 | Telemetry discovery | Optional `agents.discovery` path; exercised by the combined synthetic demo. |
 | Trace semantics | Deterministic descriptions, raw evidence retention, and local deferral of unknown meanings. |
 | Baseline comparisons | Authored demonstrations of qualified references and comparative descriptors. |
 | Investigation | Injected scripted assessor and deterministic follow-up operations with bounded attempts. |
-| Live models | Separate Featherless experiments; no integrated routed submission agent. |
+| Live models | GLM submission adapter with bounded retries/fallback; separate Featherless experiments. Full diagnosis accuracy remains unverified. |
 | Benchmark evaluation | Routed versus single-model diagnosis results are not yet reported. |
 
 ## Run the official interface

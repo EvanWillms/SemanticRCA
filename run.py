@@ -22,7 +22,7 @@ from rca.discovery.context import RunContext
 from rca.inputs import InputValidationError, preflight_inputs
 from rca.outputs import OutputWriteError, OutputWriter
 
-DEFAULT_AGENT = "agents.heuristic"
+DEFAULT_AGENT = "agents.routed"
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -76,9 +76,10 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     run_started = time.monotonic()
     discovery_mode = args.agent == "agents.discovery"
+    submission_mode = args.agent == "agents.routed"
     result_code = 0
     run_budget = RunBudget()
-    run_context = RunContext(bundle.dataset_dir, bundle.out_dir, run_budget) if discovery_mode else None
+    run_context = RunContext(bundle.dataset_dir, bundle.out_dir, run_budget) if discovery_mode or submission_mode else None
     if discovery_mode:
         try:
             writer.write_discovery_run("discovery", 0.0, len(bundle.rows), run_context.metadata())
@@ -114,6 +115,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if discovery_mode:
         print("Discovery run persisted: diagnosis pending; see case findings for completed capability.")
+    elif submission_mode:
+        print("Submission run complete: predictions and source-backed evidence persisted.")
     else:
         print("Harness-only run complete: predictions are intentionally blank; diagnosis is not implemented.")
     return result_code

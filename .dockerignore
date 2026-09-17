@@ -13,6 +13,7 @@
 
 # The image needs only the official entry point and the two runtime packages.
 !Dockerfile
+!requirements.txt
 !run.py
 !agents/
 !agents/**

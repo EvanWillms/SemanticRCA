@@ -25,6 +25,7 @@ def _invoke(dataset: Path, queries: Path, output: Path) -> tuple[int, str, str]:
     with redirect_stdout(stdout), redirect_stderr(stderr):
         status = main(
             [
+                "--agent", "agents.submission",
                 "--dataset",
                 str(dataset),
                 "--queries",

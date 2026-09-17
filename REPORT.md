@@ -1,4 +1,28 @@
-# Harness report
+# Submission checkpoint report
+
+## Final integration status
+
+The default runner now selects a GLM-backed submission adapter over the deterministic
+discovery path. It formats the requested incident fields and retains a qualified
+best guess on provider failure. The earlier harness record below describes the
+original milestone; the explicit `agents.submission` mode preserves it.
+
+The combined authored demo passed in a network-disabled Docker container with
+2 CPUs and 8 GB RAM. It produces trace and metric departures, baseline descriptors,
+semantic trace descriptions and a scripted investigation receipt. Those results
+demonstrate plumbing and source retention, not causal accuracy.
+
+**Missing evaluation:** we have not completed a routed-versus-single-model RCA
+benchmark comparison, held-out diagnosis accuracy, or a cold 20-case resource
+rehearsal. No scores are invented. Separate semantic-model experiments are
+documented under `docs/research/experiments/semantic-encoding-v1/`; they do not
+substitute for end-to-end RCA evaluation. The S09 transport repair reached HTTP
+200 for six requests, while its unchanged semantic scorer remained 0/6.
+
+Known failure modes include truncated trace windows, insufficient historical
+support, ambiguous correlated metric departures, unknown semantic operations,
+unavailable models and an uncalibrated best-guess fallback. Full submission
+compliance and performance are not certified by the synthetic checks.
 
 ## Status
 

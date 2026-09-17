@@ -90,7 +90,7 @@ API access; the six-case S09 run separately assesses status interpretation.
 Build the standalone S09 image from its restricted experiment directory:
 
 ```sh
-docker build -t symbolicrca-s09:latest experiments/semantic_encoding_v1
+docker build -f experiments/semantic_encoding_v1/Dockerfile.s09 -t symbolicrca-s09:latest experiments/semantic_encoding_v1
 docker run --rm --network none symbolicrca-s09:latest \
   python -m unittest experiments.semantic_encoding_v1.test_s09_transport -v
 ```

@@ -30,6 +30,7 @@ class EmptyOutputContractTests(unittest.TestCase):
                 [
                     sys.executable,
                     "run.py",
+                    "--agent", "agents.submission",
                     "--dataset",
                     str(dataset),
                     "--queries",
@@ -84,6 +85,7 @@ class EmptyOutputContractTests(unittest.TestCase):
                 [
                     sys.executable,
                     "run.py",
+                    "--agent", "agents.submission",
                     "--dataset",
                     str(dataset),
                     "--queries",
