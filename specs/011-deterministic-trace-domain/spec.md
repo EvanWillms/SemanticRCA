@@ -1,5 +1,15 @@
 # Standalone deterministic trace semantics
 
+## Demo-first amendment
+
+The user subsequently prioritized "ready to demo as soon as possible" and
+"minimal happy-path with only core TDD coverage." The current checkpoint
+therefore accepts the public two-stage API on complete authored Track-1 records
+with string identifiers, exact blank-string root markers and a caller-declared
+operation/unit policy. Acceptance is one nonempty executable demo plus the
+focused core test suite. The broader requirements below remain the domain
+library's target; review gaps are explicit follow-up work, not demo blockers.
+
 The caller supplies a collection of traces already selected as fault related.
 This library describes their recorded evidence; selection and diagnosis belong
 to the caller. It performs no retrieval, model calls, anomaly detection, or

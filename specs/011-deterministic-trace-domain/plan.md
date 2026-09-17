@@ -1,5 +1,9 @@
 # Implementation plan
 
+The latest user instruction prioritizes a demo-ready happy path with core TDD
+coverage. Freeze implementation after the nonempty demo and focused tests pass;
+record broader review findings rather than delaying the handoff to expand tests.
+
 Place a separately installable package under `libraries/trace_semantics` with
 its own `pyproject.toml`, README and tests. Keep the restricted S01 experiment
 and runtime integration untouched so concurrent agents can continue their work.

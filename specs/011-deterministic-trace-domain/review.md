@@ -16,7 +16,54 @@ Standards sources: `CONTEXT.md`, `.specify/memory/constitution.md`, ADRs 0002,
 - `python3 -m pytest experiments/semantic_encoding_v1/test_s01.py experiments/semantic_encoding_v1/test_s02_s09.py -q`:
   14 passed, 3 subtests passed.
 
-## Pending
+## Demo checkpoint review
 
-Luna TDD implementation, standalone verification, standards review and spec
-review. No library readiness claim is made until these have completed.
+Reviewed all source modules (`partition.py`, `description.py`, `__init__.py`,
+`demo.py`), both test files and packaging. Luna extra-high agents implemented
+partitioning and description slices; an independent Luna reviewer checked
+standards and exercised the authored happy path. The owner reviewed the public
+contract, full source, integration, packaging and scope reconciliation.
+
+Demo blockers repaired: CSV numeric strings rejected as timing, malformed parent
+values crashing processing, mismatched trace rows contributing accepted facts,
+missing fields treated as complete records, conflict records choosing a winner,
+input aliasing/coercion, missing policy in description and duplicate-envelope raw
+loss. Description tests were moved from an accidentally written repository test
+path into the isolated package before committing.
+
+Validation at the demo checkpoint:
+
+- `python3 -m pytest libraries/trace_semantics -q`: **19 passed**.
+- `PYTHONPATH=libraries/trace_semantics/src python3 -m trace_semantics.demo`:
+  **PASS**, 2 selected traces, 3 occurrences, early operation/status deferrals,
+  exact raw recovery and deterministic two-stage/composed encoding.
+- `python3 -m ruff check libraries/trace_semantics/src libraries/trace_semantics/tests`:
+  **passed**.
+- `python3 -m pytest tests -q`: **43 passed, 12 subtests passed** on the shared
+  checkout (other owners' tests can change independently).
+- Package copied outside the repository, built and installed with no runtime
+  dependencies; isolated Python 3.12 import verified. Final installed demo is
+  checked again against the committed source candidate.
+
+## Remaining findings, outside the user-prioritized demo path
+
+- Root handling currently accepts `None` like the documented blank-string marker;
+  use exact `""` for the demo. Numeric identifiers are also accepted and need a
+  stricter type-sensitive identity contract before broad ingestion.
+- Evidence IDs include enclosing trace/deployment/raw/locator with a truncated
+  digest and per-envelope duplicate suffixes. Repeated malformed envelopes need
+  globally collision-safe evidence addressing. Complete valid demo envelopes
+  have scoped, resolvable references.
+- Context survives exactly in `trace["raw"]` (and `raw_envelopes` for merged
+  inputs); the final description does not yet expose it as a separate structured
+  field. Full ADR 0010 claim metadata is also a follow-up.
+- Equivalent unit aliases can be treated as contradictory. Use consistent
+  canonical units in the demo. No endpoint conversion or causal timing is claimed.
+- Conflict groups repeat evidence membership in each deferral, so large conflict
+  groups can consume quadratic space. Adversarial nesting and forged partitions
+  need broader boundary validation.
+
+These findings limit full robustness acceptance. None blocks the reviewed,
+complete authored happy path. Per the user's latest instruction, stop at this
+available interface and passing demo; do not claim production readiness,
+compression gains, diagnosis accuracy or complete original-spec acceptance.

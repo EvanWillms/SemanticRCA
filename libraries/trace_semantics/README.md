@@ -5,6 +5,25 @@ fault related. It separates facts that can be described deterministically from
 items requiring additional evidence or interpretation, then constructs a
 versioned description set. It does not decide which traces are fault related.
 
+## Run the demo
+
+From the repository root, without installation or network access:
+
+```sh
+PYTHONPATH=libraries/trace_semantics/src python3 -m trace_semantics.demo
+```
+
+Expected result: `PASS`, two selected traces, three described occurrences, one
+unknown operation returned before description construction, retained raw
+evidence and deterministic output. After installation, use
+`python3 -m trace_semantics.demo` directly.
+
+This checkpoint is ready for the authored happy path: complete Track-1-shaped
+records, string identifiers, `""` as the root parent marker, and a caller-scoped
+operation/unit policy. Broader hardening remains explicit in
+[`review.md`](../../specs/011-deterministic-trace-domain/review.md); this is not
+full acceptance of the original robustness specification.
+
 The runtime uses the Python standard library. Its input is supplied evidence;
 it does not retrieve telemetry, call models or import the SymbolicRCA runtime.
 
