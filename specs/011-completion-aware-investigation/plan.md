@@ -1,6 +1,6 @@
 # Implementation plan: semantic traces into RCA investigation
 
-Status: planning in progress; public TDD seams awaiting user confirmation.
+Status: technical decisions recorded; public TDD seams awaiting user confirmation.
 
 ## Objective and ownership
 
@@ -28,7 +28,7 @@ been requested for these two boundaries:
    history, usage and explicit terminal outcome.
 
 Public immutable value types support these calls. Concrete signatures and adapter
-schemas will be frozen before parallel implementation. Neither boundary reads
+schemas are specified in [the API design](contracts/domain-api.md) before parallel implementation. Neither boundary reads
 raw files, labels or a remote provider implicitly.
 
 ## Evidence handoff

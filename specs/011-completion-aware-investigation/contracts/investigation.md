@@ -5,7 +5,11 @@ No runtime capability is asserted.
 
 ## Boundary and records
 
-Retain `solve(instruction, dataset_dir, ctx) -> Solution` as the integration seam.
+Retain `solve(instruction, dataset_dir, ctx) -> Solution` as the repository runner's
+integration seam, outside the standalone domain package. The domain package
+exports the evidence and investigation APIs in [domain-api.md](domain-api.md);
+it imports neither `Solution` nor runner persistence code. A future runner adapter
+maps its scope and returned domain result into feature 007 artifacts.
 Consume supported scope and initial evidence from features 003–004; do not infer
 that those suppliers exist merely because their contracts do. Authored fixtures
 permit independent development. Unsupported scope exits before telemetry access.
