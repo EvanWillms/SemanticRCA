@@ -5,6 +5,28 @@
 SymbolicRCA builds an unattended root-cause-analysis agent for the labelled
 incidents in the supplied Track 1 microservice benchmark.
 
+The architectural vision is a multimodal symbolic evidence layer for efficient,
+explainable infrastructure root-cause analysis. Execution separates deterministic
+data preparation, a bounded agentic investigation loop, and validated answer
+assembly. Preparation produces source-linked descriptive observations, qualified
+contextual comparisons, and candidates. The agent forms competing hypotheses,
+asks discriminating follow-up questions through declared operations, and revises
+its explanations from returned evidence. Deterministic tools retain control of
+retrieval, measurements, comparison policies, provenance, and resource limits.
+
+The handoff is evidence rather than a causal verdict: observations, comparison
+findings, hypotheses, and final incident selections remain distinct. Adaptive
+investigation changes focus without rewriting facts or tuning frozen comparison
+policies. Symbolic compression is evaluated for preserved meaning and useful
+evidence, not assumed to improve diagnosis merely by reducing representation size.
+The [execution architecture](../../docs/architecture.md) records the flow,
+contracts, implementation boundaries, and validation stages.
+
+The longer research direction is continuous recognition of emergent reliability
+behaviors from fused telemetry. The immediate delivery scope remains the supplied
+Track 1 benchmark; neither this broader direction nor the target architecture is
+a claim of implemented capability or established diagnostic effectiveness.
+
 **A failure is a labelled incident in the supplied benchmark, represented by its
 occurrence time, root-cause component, and fault reason.** Occurrence time means
 the fault's start time. Dataset operators establish the incidents by injecting
@@ -14,10 +36,14 @@ and why from telemetry, returning the fields requested by the task and a
 defensible explanation with supporting evidence. It is not required to establish
 that a customer-visible outage or reliability/SLO breach occurred.
 
-The complete deliverable MUST diagnose those incidents and explain its evidence.
-The first experiment tests only one necessary part: whether the correct component
-reaches the shortlist. Candidate recall alone does not establish complete diagnosis,
-onset accuracy, fault-reason accuracy, or completion of the deliverable.
+The complete deliverable MUST diagnose the requested fields of those incidents
+and explain its evidence, preserving each incident's time/component/reason
+association. The first experiment tests descriptive semantic compression: whether
+equivalent executions remain comparable and an execution difference remains
+visible. Representation fidelity, comparison validity, and diagnosis are separate
+claims. Neither a compression check nor candidate recall establishes complete
+diagnosis or completion of the deliverable. See
+[ADR 0002](../../docs/adr/0002-descriptive-semantic-compression.md).
 
 See [ADR 0001](../../docs/adr/0001-benchmark-failure-definition.md) for the source
 contract and the distinction from MantisGrid's broader product framing.
@@ -126,4 +152,25 @@ include a constitution-compliance check. The project maintainer or designated
 reviewer is responsible for resolving conflicts and confirming that the
 evaluation evidence supports any claimed improvement.
 
-**Version**: 1.0.1 | **Ratified**: TODO(RATIFICATION_DATE): Set when the team formally adopts this constitution. | **Last Amended**: 2026-09-17
+### Amendment record — 2026-09-17
+
+Version 1.0.2 clarifies Project Vision and Success Criteria following the user's
+revised experiment scope: descriptive compression precedes comparison and
+diagnosis, and tasks request incident-tuple projections. Core principles,
+governance, and final submission obligations are unchanged. Sync review covered
+ADRs 0001–0002 and experiment 001's specification, plan, contracts, and checklist;
+previous experiment documents are retained as deferred or superseded history.
+There are no implementation tasks or results to migrate.
+
+### Amendment record — 2026-09-17 (execution architecture)
+
+Version 1.0.3 clarifies Project Vision and Success Criteria with the deterministic
+preparation, bounded agentic investigation, and validated answer-assembly flow.
+It connects the symbolic evidence thesis to the existing retrieval and diagnosis
+decisions without changing core principles, governance, submission requirements,
+or feature scope. Sync review covered ADRs 0002–0008 and 0010, features 001–005
+and 007, and feature 004's prompt-only implementation plan. The architecture and
+README distinguish target capability from the shipped empty-output harness.
+No application code, feature tasks, or evaluation results require migration.
+
+**Version**: 1.0.3 | **Ratified**: TODO(RATIFICATION_DATE): Set when the team formally adopts this constitution. | **Last Amended**: 2026-09-17
