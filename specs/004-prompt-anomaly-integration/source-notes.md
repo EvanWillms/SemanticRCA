@@ -1,0 +1,17 @@
+# Integration source notes
+
+## OpenRCA adoption amendment — 2026-09-17
+
+The [adoption map](../../docs/openrca-adoption.md) pins the inspected OpenRCA and official Track 1 sources. OpenRCA's Market prompt is an adapter reference, not an authoritative component inventory or diagnostic policy. Official `docs/scoring.md` and `docs/submission.md` govern final best-guess output, row identity, exact strings and field ordering; this feature remains the intermediate no-call discovery stage. Added FR-015/016 and O1/O2 specify validated inventories and auditable bounded operations. No runtime acceptance was executed.
+
+Read on 2026-09-17 from the supplied workspace; no external research or benchmark labels were needed.
+
+- Official neighboring repository: `track-1/docs/data.md`, `track-1/docs/submission.md`; the provided content defines the seven task types, 30-minute scope, UTC+8, mixed timestamp units, exact resource labels, CLI and runtime limits. The local public `data/track-1/query.csv` has row_id/task_index/instruction columns and 70 rows. Inspected representative wording for every task type and multiple failures; no gold answers were read for scope generation.
+- [Feature 002](../002-final-demo-runner/spec.md), its implemented runtime and strict placeholder validator: working empty-output scaffold; the new discovery output requires a distinct validation path and an explicit retained stub regression mode.
+- [Feature 003](../003-contextual-telemetry-evidence/spec.md) plus ADRs 0003–0005: authoritative qualified retrieval, comparison and resource-linkage requirements; current research code is not proof of compliance.
+- `experiments/frontend_blind_v1/run_case.py` uses a development scope.csv and local artifacts, fixed index defaults and a multi-arm top-prefix experiment. It is a reuse candidate, not directly portable production integration.
+- `experiments/short_window_baselining_v1/analysis.py:_query_inventory` first joins development scopes by ID and has a fallback parser limited to March 20/21, 2022. That is insufficient for interpreting arbitrary supplied Track 1 rows from another deployment/date. `replay.py` assumes 57 development windows; that count cannot become a runtime requirement.
+- The locally inspected ignored `data/experiments/short-window-baselining-v1/selection.json` freezes five-minute pooled C1 (recorded direct-child operation/type set), median and signed absolute excess, no fallback, and an independent structural channel. Qualifications include exposed telemetry, unverified health/workload/replica equivalence, provisional raw-duration microseconds and no incident-sensitivity/calibrated-threshold claim. Selection is for descriptive replay, not a proven root-cause detector.
+- The local final research report records a roughly 322-second index build and about 13.44 GB on disk, with much larger experimental exports than the demo needs. These are reported research measurements, not freshly verified integration results. Cold preparation, storage and memory must be assessed within judging limits; do not transplant the full matrix/replay pipeline or assume warm state.
+
+Only source/policy facts needed to frame the integration are captured here. Do not package ignored research results, private source paths or per-case answers into the runtime. Planning must choose and freeze concrete portable discovery policies and demonstrate controlled correctness plus Track 1 runtime fit before claiming integration complete.
