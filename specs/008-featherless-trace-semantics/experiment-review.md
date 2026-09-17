@@ -25,3 +25,7 @@ S01 cold packet sizes are 3,455/3,455/3,645 bytes, versus compact source fixture
 5. **The minimal prompt may not qualify for caching.** Count the actual selected-model static prefix before claiming eligibility. Whole-request length and bytes are insufficient. Do not add irrelevant instructions merely to exceed a caching threshold.
 
 Decision: [P01 plus a conditional six-call cache smoke](minimal-test.md). The narrower status test and the previous 12-call caching sketch remain later alternatives, not extra calls hidden inside this protocol.
+
+## Subsequent execution update
+
+After checkpoint b83e97c, another task's `20260917-s02-s09-002` artifacts became available: they report S02–S08 supported_on_fixture and an exploratory six-slot S09 not_run. That report was inspected but not independently revalidated here; it does not alter the original review's evidence cutoff or redefine the separate 18-call S09 protocol. P01 subsequently executed with 18/18 fidelity passes, measured token reduction and observed full-request cache usage; see [P01-result.md](../../docs/research/experiments/semantic-encoding-v1/P01-result.md). Its static prefix did not qualify for the separate cache smoke.

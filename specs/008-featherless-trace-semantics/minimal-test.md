@@ -1,6 +1,6 @@
 # P01: minimal semantic tokenization prompt and cache test
 
-Date: 2026-09-17. Status: designed; input projections checked offline; no inference or model-token measurement executed.
+Date: 2026-09-17. Design checkpoint: b83e97c. Subsequent execution: P01 completed 18/18 fidelity passes; see [results](../../docs/research/experiments/semantic-encoding-v1/P01-result.md). The protocol below preserves the pre-run design and stop rules.
 
 ## Decision and scope
 

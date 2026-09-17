@@ -1,8 +1,8 @@
 # Validation guide
 
-For the immediate P01 test, use [minimal-test.md](minimal-test.md), its six checked design inputs and exact prompt. There is no P01 runner yet. Perform its zero-call readiness checks, then implement the bounded runner/scorer before any live dispatch. The S09 commands below remain future, deferred examples.
+For the immediate P01 test, use [minimal-test.md](minimal-test.md), its six checked design inputs and exact prompt. P01 is now implemented and its first live study completed; see the [result](../../docs/research/experiments/semantic-encoding-v1/P01-result.md). Use the commands below to replay scoring or start a separately frozen new run. The S09 commands below remain future, deferred examples.
 
-This is a future execution guide. S09 modules and fixtures described here do not yet exist. This planning task made no paid model calls.
+The S09 commands in the next section describe the deferred protocol, not the completed P01 runner. Separately owned exploratory S09 work does not establish implementation of this protocol.
 
 ## Existing baseline
 
@@ -36,3 +36,12 @@ python3 -m experiments.semantic_encoding_v1.score_s09 --run-dir data/experiments
 6. Publish supported_on_fixture/falsified/inconclusive, all qualifications and the next smallest study. Stop here. Any extra model comparison, retry study, cache probe or broader variable-trace experiment gets a new frozen manifest/run.
 
 A cache-free run must remain correct and budgeted. No fixed hit rate, TTL or latency speedup is an acceptance requirement. Refer to [the contract](contracts/annotation-study.md) for artifact states and [the plan](plan.md) for the optional later probe.
+
+## Implemented P01 commands
+
+```sh
+python3 -m unittest experiments.semantic_encoding_v1.test_p01 -v
+python3 -m experiments.semantic_encoding_v1.run_p01 score --run-id 20260917-p01-002
+```
+
+Scoring is offline and preserves the original live summary, writing/confirming the separate audited report. The older live code snapshot remains in the run directory. For an explicitly authorized new live run, set FEATHERLESS_API_KEY in the environment or a local Git-ignored .env, then use `prepare --run-id NEW_ID` followed by `run --run-id NEW_ID`. Prepare makes bounded metadata/tokenization calls; run admits at most 18 generation attempts and refuses reused execution IDs. Never use shell sourcing to load the environment file. No cache-smoke sender is enabled: the observed natural-prefix gate fails. Current code is the bounded P01 slice, not S09 or production integration.

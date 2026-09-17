@@ -1,7 +1,7 @@
 # Implementation Plan: Featherless GLM trace semantics
 
 **Branch**: `008-featherless-trace-semantics` | **Date**: 2026-09-17
-**Spec**: [spec.md](spec.md) | **Status**: Planning complete; implementation and experiments pending.
+**Spec**: [spec.md](spec.md) | **Status**: P01 bounded implementation and 18-call live study complete on authored fixtures; static-prefix cache smoke skipped as ineligible. S09 and broader integration remain deferred. See [results](../../docs/research/experiments/semantic-encoding-v1/P01-result.md).
 
 **Decision**: [ADR 0015](../../docs/adr/0015-featherless-trace-semantics-and-prefix-caching.md)
 

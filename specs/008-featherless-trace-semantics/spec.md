@@ -1,7 +1,7 @@
 # Feature Specification: Featherless GLM trace classification and semantic encoding
 
 **Branch**: `008-featherless-trace-semantics` | **Created**: 2026-09-17
-**Status**: Specified and planned; implementation and model experiments pending.
+**Status**: P01 bounded runner implemented; first 18-call study passed on authored fixtures. Conditional static-prefix cache smoke ineligible; S09 and broader integration deferred. See [P01 results](../../docs/research/experiments/semantic-encoding-v1/P01-result.md).
 **Input**: Plan Featherless GLM classification and semantic encoding of non-deterministic traces, using automatic prompt-prefix caching where available.
 
 **Decision**: [ADR 0015 — trace semantics and prefix caching](../../docs/adr/0015-featherless-trace-semantics-and-prefix-caching.md)
