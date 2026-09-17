@@ -1,0 +1,11 @@
+# Build from this experiment directory, not the repository root.
+**
+!Dockerfile
+!.dockerignore
+!requirements-live.txt
+!__init__.py
+!run_s02_s09.py
+!run_s09_live.py
+!test_s09_transport.py
+!fixtures/
+!fixtures/expected_s09.json

@@ -1,0 +1,2 @@
+# Optional dependency for run_s09_live and its SDK transport tests.
+openai==3.14.1

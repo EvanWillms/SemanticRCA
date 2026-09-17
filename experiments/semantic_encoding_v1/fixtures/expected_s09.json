@@ -1,0 +1,87 @@
+{
+  "authority": "independently authored synthetic S09 inputs and expected structured facts, frozen before live-run amendments",
+  "schema_version": "s09.v1",
+  "cases": {
+    "unmapped_14": {
+      "packet_id": "pkt-a7",
+      "raw": {
+        "timestamp": "1000",
+        "cmdb_id": "service",
+        "span_id": "span-a7",
+        "trace_id": "trace-a7",
+        "duration": "5",
+        "type": "rpc",
+        "status_code": "14",
+        "operation_name": "status.case",
+        "parent_span": ""
+      },
+      "mapping_context": {
+        "mapping": {"version": null, "scope": "none", "entries": {}, "evidence_ids": []},
+        "enclosing_request": {"scope_id": "scope-a7", "verification": null, "verifier_evidence_ids": []},
+        "raw_evidence_ids": ["ev-raw-a7"]
+      },
+      "expected": {
+        "schema_version": "s09.v1",
+        "packet_id": "pkt-a7",
+        "raw_status": "14",
+        "mapping": {"applicability": "unknown", "mapping_id": null, "evidence_ids": []},
+        "span_interpretation": {"value": "unknown", "scope_id": "span-a7", "evidence_ids": ["ev-raw-a7"]},
+        "enclosing_outcome": {"value": "unknown", "scope_id": "scope-a7", "criterion": null, "verifier_evidence_ids": []}
+      }
+    },
+    "mapped_error": {
+      "packet_id": "pkt-b7",
+      "raw": {
+        "timestamp": "1000",
+        "cmdb_id": "service",
+        "span_id": "span-b7",
+        "trace_id": "trace-b7",
+        "duration": "5",
+        "type": "rpc",
+        "status_code": "14",
+        "operation_name": "status.case",
+        "parent_span": ""
+      },
+      "mapping_context": {
+        "mapping": {"version": "producer-v1", "scope": "synthetic", "context_key": "ctx-b7", "entries": {"14": "reported_error"}, "evidence_ids": ["ev-map-b7"]},
+        "enclosing_request": {"scope_id": "scope-b7", "verification": null, "verifier_evidence_ids": []},
+        "raw_evidence_ids": ["ev-raw-b7"]
+      },
+      "expected": {
+        "schema_version": "s09.v1",
+        "packet_id": "pkt-b7",
+        "raw_status": "14",
+        "mapping": {"applicability": "supported", "mapping_id": "map-b7", "evidence_ids": ["ev-map-b7"]},
+        "span_interpretation": {"value": "reported_error", "scope_id": "span-b7", "evidence_ids": ["ev-raw-b7"]},
+        "enclosing_outcome": {"value": "unknown", "scope_id": "scope-b7", "criterion": null, "verifier_evidence_ids": []}
+      }
+    },
+    "mapped_error_verified_success": {
+      "packet_id": "pkt-c7",
+      "raw": {
+        "timestamp": "1000",
+        "cmdb_id": "service",
+        "span_id": "span-c7",
+        "trace_id": "trace-c7",
+        "duration": "5",
+        "type": "rpc",
+        "status_code": "14",
+        "operation_name": "status.case",
+        "parent_span": ""
+      },
+      "mapping_context": {
+        "mapping": {"version": "producer-v1", "scope": "synthetic", "context_key": "ctx-c7", "entries": {"14": "reported_error"}, "evidence_ids": ["ev-map-c7"]},
+        "enclosing_request": {"scope_id": "scope-c7", "verification": {"outcome": "verified_success", "evidence_id": "ev-ver-c7"}, "verifier_evidence_ids": ["ev-ver-c7"]},
+        "raw_evidence_ids": ["ev-raw-c7"]
+      },
+      "expected": {
+        "schema_version": "s09.v1",
+        "packet_id": "pkt-c7",
+        "raw_status": "14",
+        "mapping": {"applicability": "supported", "mapping_id": "map-c7", "evidence_ids": ["ev-map-c7"]},
+        "span_interpretation": {"value": "reported_error", "scope_id": "span-c7", "evidence_ids": ["ev-raw-c7"]},
+        "enclosing_outcome": {"value": "verified_success", "scope_id": "scope-c7", "criterion": "enclosing_request_outcome_v1", "verifier_evidence_ids": ["ev-ver-c7"]}
+      }
+    }
+  }
+}
