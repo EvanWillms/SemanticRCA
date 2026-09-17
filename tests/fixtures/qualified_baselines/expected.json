@@ -1,0 +1,29 @@
+{
+  "reference_count_per_context": 20,
+  "minute_counts": [
+    8,
+    6,
+    6
+  ],
+  "constant_median_ms": 10,
+  "zero_median_ms": 0,
+  "query_occurrences": 8,
+  "constant_excess_ms": [
+    2,
+    -2,
+    0,
+    2,
+    2,
+    2
+  ],
+  "zero_excess_ms": 12,
+  "new_context": "unavailable",
+  "slices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ]
+}
