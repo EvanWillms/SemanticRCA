@@ -7,7 +7,7 @@ benchmark classification.
 
 ## Public boundary
 
-Proposed for confirmation: `partition_traces(traces, policy)` returns accepted
+`partition_traces(traces, policy)` returns accepted
 facts and deferred items before `describe(partition)` creates a description set.
 `encode_traces(traces, policy)` composes both stages. Deferral is at the facet or
 record level: an unknown operation meaning must not suppress a recorded parent
@@ -38,6 +38,32 @@ traces from being processed.
    malformed evidence produces explicit deferral without losing other traces.
 8. The package installs and runs independently with the Python standard library,
    without imports from `rca`, `agents`, experiments or repository data paths.
+
+## Interpretation details
+
+Inputs are finite JSON-compatible values. Malformed records within that domain
+are preserved and deferred; arbitrary Python objects, cycles in Python
+containers, NaN and infinity are outside the transport contract and produce a
+clear caller error. Numeric strings such as `"NaN"` remain raw evidence and
+yield a timing deferral.
+
+A logical occurrence is an unambiguous span identity within its supplied trace
+and deployment. Exact raw duplicates with different locators support the same
+occurrence. Different raw rows for one span identity are conflicting evidence,
+not additional known occurrences. Physical records, resolved occurrences and
+conflicting identities must have separate counts.
+
+Unit declarations belong to the encoding policy applied to the collection;
+source context remains retained evidence. A caller with incompatible source
+unit conventions must partition its input by policy. The library must not
+silently replace an explicitly contradictory source declaration. A versioned
+operation mapping is a caller-supplied interpretation, not independently
+verified instrumentation semantics.
+
+Determinism means identical supplied evidence and policy produce identical
+serialized descriptions. It does not claim graph isomorphism, equivalence of
+different locators or identifiers, or a total execution order. Whole input trace
+objects are retained so callers can recover extra fields and original ordering.
 
 ## Acceptance
 
